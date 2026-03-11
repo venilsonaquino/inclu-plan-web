@@ -9,9 +9,23 @@ import Button from "@/components/ui/Button";
 
 interface Turma {
   id: string;
-  nome: string;
-  alunos: any[];
+  nome?: string;
+  name?: string; // from backend
+  alunos?: any[];
 }
+
+interface Grade {
+  id: string;
+  name: string;
+}
+
+interface LearningProfile {
+  id: string;
+  name: string;
+}
+
+// Temporary Teacher ID mimicking Auth for the Postman collection endpoints
+const TEMP_TEACHER_ID = "00000000-0000-0000-0000-000000000000";
 
 export default function CriacaoTurmaPage() {
   const router = useRouter();
@@ -23,32 +37,56 @@ export default function CriacaoTurmaPage() {
   // Onboarding Wizard State
   const [onboardingStep, setOnboardingStep] = useState<1 | 2 | 3>(0 as any); // 0 means loading/undetermined
 
+  // Master Data State
+  const [grades, setGrades] = useState<{value: string, label: string}[]>([]);
+  const [learningProfiles, setLearningProfiles] = useState<LearningProfile[]>([]);
+
   // New Turma Form State
   const [isCreatingTurma, setIsCreatingTurma] = useState(false);
   const [newTurmaName, setNewTurmaName] = useState("");
 
   useEffect(() => {
+    fetchMasterData();
     fetchTurmas();
   }, []);
+
+  const fetchMasterData = async () => {
+    try {
+      const [gradesRes, profilesRes] = await Promise.all([
+        fetch("/api/proxy/grades"),
+        fetch("/api/proxy/learning-profiles")
+      ]);
+      if (gradesRes.ok) {
+        const gradesData: Grade[] = await gradesRes.json();
+        setGrades(gradesData.map(g => ({ value: g.id, label: g.name })));
+      }
+      if (profilesRes.ok) {
+        setLearningProfiles(await profilesRes.json());
+      }
+    } catch (e) {
+      console.error("Failed to load master data", e);
+    }
+  };
 
   const fetchTurmas = async () => {
     try {
       setIsLoading(true);
-      const res = await fetch("/api/turmas");
+      const res = await fetch("/api/proxy/school-classes");
       const data = await res.json();
       
       const turmasData = Array.isArray(data) ? data : [];
       setTurmas(turmasData);
       
       if (turmasData.length > 0) {
-        setSelectedTurma(turmasData[0].nome);
+        // Handle name or nome differences easily gracefully
+        setSelectedTurma(turmasData[0].name || turmasData[0].nome || "");
         setOnboardingStep(3); // Regular flow, user already has turmas
       } else {
         setOnboardingStep(1); // First time flow
         setIsCreatingTurma(true); // Force open the form
       }
     } catch (error) {
-      console.error("Failed to load turmas via Next.js API route.", error);
+      console.error("Failed to load turmas via proxy route.", error);
       setTurmas([]);
       setOnboardingStep(1);
       setIsCreatingTurma(true);
@@ -62,20 +100,20 @@ export default function CriacaoTurmaPage() {
     if (!newTurmaName.trim()) return;
 
     try {
-      const res = await fetch("/api/turmas", {
+      const res = await fetch("/api/proxy/school-classes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: newTurmaName })
+        body: JSON.stringify({ name: newTurmaName, teacherId: TEMP_TEACHER_ID })
       });
 
       if (!res.ok) {
-        throw new Error("Failed response from /api/turmas");
+        throw new Error("Failed response from proxy/school-classes");
       }
 
       const novaTurma = await res.json();
       
       setTurmas([...turmas, novaTurma]);
-      setSelectedTurma(novaTurma.nome);
+      setSelectedTurma(novaTurma.name || novaTurma.nome);
       setNewTurmaName("");
       setIsCreatingTurma(false);
       setIsDropdownOpen(false);
@@ -89,7 +127,8 @@ export default function CriacaoTurmaPage() {
       // Temporary fallback for UI testing if backend is down
       const mockTurma = {
         id: Date.now().toString(),
-        nome: newTurmaName,
+        nome: newTurmaName, // legacy frontend prop format fallback
+        name: newTurmaName, 
         alunos: []
       };
       setTurmas([...turmas, mockTurma]);
@@ -114,14 +153,39 @@ export default function CriacaoTurmaPage() {
   const [selectedConditions, setSelectedConditions] = useState<string[]>([]);
   const [observations, setObservations] = useState("");
 
-  const handleAddStudent = (e: React.FormEvent) => {
+  const handleAddStudent = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!studentName) return;
+    if (!studentName || !studentLevel) return;
+
+    // Achar o ID real da turma selecionada
+    const currentTurmaObj = turmas.find(t => (t.name || t.nome) === selectedTurma);
+
+    const payload = {
+      name: studentName,
+      gradeId: studentLevel, // studentLevel is the UUID here because of Select setup
+      schoolClassId: currentTurmaObj?.id || "",
+      neurodivergencies: selectedConditions, // array of IDs
+      notes: observations
+    };
+
+    try {
+      const res = await fetch("/api/proxy/students", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error("Falha ao salvar aluno");
+    } catch(err) {
+      console.error(err);
+      // Let it fall through to UI success for testing even if backend is offline
+    }
+
+    const gradeLabel = grades.find(g => g.value === studentLevel)?.label || studentLevel;
 
     const newStudent = {
       name: studentName,
-      level: studentLevel,
-      conditions: selectedConditions
+      level: gradeLabel,
+      conditions: selectedConditions.map(id => learningProfiles.find(p => p.id === id)?.name || id)
     };
 
     setAddedStudents([newStudent, ...addedStudents]);
@@ -255,18 +319,18 @@ export default function CriacaoTurmaPage() {
                         <button
                           key={turma.id}
                           onClick={() => {
-                            setSelectedTurma(turma.nome);
+                            setSelectedTurma(turma.name || turma.nome || "");
                             setIsDropdownOpen(false);
                             setIsCreatingTurma(false);
                           }}
                           className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all ${
-                            selectedTurma === turma.nome 
+                            selectedTurma === (turma.name || turma.nome) 
                               ? 'bg-primary/10 text-primary' 
                               : 'hover:bg-slate-50 text-slate-600'
                           }`}
                         >
-                          <span className="font-bold">{turma.nome}</span>
-                          {selectedTurma === turma.nome && (
+                          <span className="font-bold">{turma.name || turma.nome}</span>
+                          {selectedTurma === (turma.name || turma.nome) && (
                             <span className="material-symbols-outlined text-sm font-bold">check</span>
                           )}
                         </button>
@@ -396,13 +460,12 @@ export default function CriacaoTurmaPage() {
                 </label>
                 <Select
                   icon="school"
-                  placeholder="Selecione o nível"
+                  placeholder="Selecione a série..."
                   value={studentLevel}
                   onChange={setStudentLevel}
-                  options={[
-                    { value: "1º Ano Fundamental", label: "1º Ano Fundamental" },
-                    { value: "2º Ano Fundamental", label: "2º Ano Fundamental" },
-                    { value: "3º Ano Fundamental", label: "3º Ano Fundamental" }
+                  options={grades.length > 0 ? grades : [
+                    { value: "mock-1", label: "1º Ano Fundamental" },
+                    { value: "mock-2", label: "2º Ano Fundamental" }
                   ]}
                 />
               </div>
@@ -414,23 +477,37 @@ export default function CriacaoTurmaPage() {
                 Condição ou Neurodivergência
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-                {[
-                  { icon: "extension", label: "TEA" },
-                  { icon: "bolt", label: "TDAH" },
-                  { icon: "warning", label: "TOD" },
-                  { icon: "psychology", label: "Deficiência Intelectual" },
-                  { icon: "add_circle", label: "Outros" },
-                ].map((item) => (
-                  <label key={item.label} className="cursor-pointer group">
+                {learningProfiles.length > 0 ? learningProfiles.map((item) => (
+                  <label key={item.id} className="cursor-pointer group">
                     <input 
                       className="hidden peer" 
                       type="checkbox" 
-                      checked={selectedConditions.includes(item.label)}
-                      onChange={() => toggleCondition(item.label)}
+                      checked={selectedConditions.includes(item.id)}
+                      onChange={() => toggleCondition(item.id)}
                     />
                     <div className="flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-slate-100 bg-white transition-all peer-checked:border-primary peer-checked:bg-primary/5 group-hover:border-primary/50 text-center min-h-[100px]">
                       <span className="material-symbols-outlined text-3xl mb-2 text-slate-400 peer-checked:text-primary">
-                        {item.icon}
+                        psychology
+                      </span>
+                      <span className="text-[10px] font-bold text-slate-600 peer-checked:text-primary leading-tight uppercase tracking-tighter">
+                        {item.name}
+                      </span>
+                    </div>
+                  </label>
+                )) : [
+                  { id: "mock-1", label: "TEA" },
+                  { id: "mock-2", label: "TDAH" },
+                ].map((item) => (
+                  <label key={item.id} className="cursor-pointer group">
+                    <input 
+                      className="hidden peer" 
+                      type="checkbox" 
+                      checked={selectedConditions.includes(item.id)}
+                      onChange={() => toggleCondition(item.id)}
+                    />
+                    <div className="flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-slate-100 bg-white transition-all peer-checked:border-primary peer-checked:bg-primary/5 group-hover:border-primary/50 text-center min-h-[100px]">
+                      <span className="material-symbols-outlined text-3xl mb-2 text-slate-400 peer-checked:text-primary">
+                        psychology
                       </span>
                       <span className="text-[10px] font-bold text-slate-600 peer-checked:text-primary leading-tight uppercase tracking-tighter">
                         {item.label}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -67,6 +68,12 @@ export default function GeradorPlanosPage() {
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isCreatingNew, setIsCreatingNew] = useState(false);
+  const router = useRouter();
+
+  // Generator Form State
+  const [theme, setTheme] = useState("");
+  const [observations, setObservations] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
 
   // New Student Form State
   const [newStudentName, setNewStudentName] = useState("");
@@ -109,6 +116,52 @@ export default function GeradorPlanosPage() {
   );
 
   const selectedStudents = studentsList.filter((s) => s.selected);
+
+  const handleGeneratePlan = async () => {
+    if (!theme || selectedStudents.length === 0) {
+      alert("Por favor, selecione os alunos e defina um tema para a aula.");
+      return;
+    }
+
+    setIsGenerating(true);
+    try {
+      const payload = {
+        teacherId: "00000000-0000-0000-0000-000000000000",
+        lessons: [
+          {
+            discipline: {
+              name: activeSubject,
+              theme: theme,
+              observations: observations
+            },
+            students: selectedStudents.map(s => s.id) // passing selected student IDs
+          }
+        ],
+        imagePart: ""
+      };
+
+      const res = await fetch("/api/proxy/ai/lesson-plan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) throw new Error("Erro ao gerar plano");
+      
+      const generatedPlan = await res.json();
+      console.log("Plan Generated", generatedPlan);
+      
+      alert("Plano gerado com sucesso! (Navegando para o detalhe simulado...)");
+      router.push("/planos/cores-e-sentimentos"); // Fake navigation to the pre-built details view for now
+      
+    } catch(err) {
+      console.error(err);
+      alert("Houve um erro de conexão com o AI Backend. Simulação prosseguindo.");
+      router.push("/planos/cores-e-sentimentos");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   return (
     <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden bg-background-light text-slate-900">
@@ -245,7 +298,9 @@ export default function GeradorPlanosPage() {
                   Tema da Aula
                 </label>
                 <input
-                  className="w-full px-5 py-4 rounded-lg bg-white/50 border-slate-200 focus:border-primary focus:ring-primary/20 text-slate-800 placeholder:text-slate-400"
+                  value={theme}
+                  onChange={(e) => setTheme(e.target.value)}
+                  className="w-full px-5 py-4 rounded-lg bg-white/50 border-slate-200 focus:border-primary focus:ring-primary/20 text-slate-800 placeholder:text-slate-400 outline-none transition-all"
                   placeholder="Ex: O Ciclo da Água, Orações Subordinadas..."
                   type="text"
                 />
@@ -255,18 +310,28 @@ export default function GeradorPlanosPage() {
                   Observações do Professor
                 </label>
                 <textarea
-                  className="w-full px-5 py-4 rounded-lg bg-white/50 border-slate-200 focus:border-primary focus:ring-primary/20 text-slate-800 placeholder:text-slate-400"
+                  value={observations}
+                  onChange={(e) => setObservations(e.target.value)}
+                  className="w-full px-5 py-4 rounded-lg bg-white/50 border-slate-200 focus:border-primary focus:ring-primary/20 text-slate-800 placeholder:text-slate-400 outline-none transition-all resize-none"
                   placeholder="Ex: Focar em acessibilidade para alunos com TDAH..."
-                  rows={1}
+                  rows={2}
                 />
               </div>
             </div>
 
             {/* Generate Button */}
             <div className="pt-4">
-              <button className="w-full lg:w-auto px-10 py-5 rounded-lg bg-gradient-to-r from-primary to-secondary text-white font-bold text-lg shadow-lg shadow-primary/30 hover:shadow-primary/50 hover:scale-[1.02] transition-all flex items-center justify-center gap-3">
-                <span className="material-symbols-outlined">auto_fix_high</span>
-                Gerar Plano de Aula
+              <button 
+                onClick={handleGeneratePlan}
+                disabled={isGenerating || !theme || selectedStudents.length === 0}
+                className="w-full lg:w-auto px-10 py-5 rounded-lg bg-gradient-to-r from-primary to-secondary text-white font-bold text-lg shadow-lg shadow-primary/30 hover:shadow-primary/50 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
+              >
+                {isGenerating ? (
+                   <span className="animate-spin size-6 border-4 border-white/20 border-t-white rounded-full"></span>
+                ) : (
+                  <span className="material-symbols-outlined">auto_fix_high</span>
+                )}
+                {isGenerating ? "Gerando com IA..." : "Gerar Plano de Aula"}
               </button>
             </div>
           </div>
