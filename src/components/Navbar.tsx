@@ -10,9 +10,9 @@ interface NavLink {
 }
 
 const navLinks: NavLink[] = [
-  { href: "/planos/criar", label: "Início", icon: "home" },
-  { href: "/planos", label: "Biblioteca", icon: "library_books" },
+  { href: "/planos/criar", label: "Gerar Plano", icon: "auto_fix_high" },
   { href: "/turmas/criar", label: "Turmas", icon: "groups" },
+  { href: "/planos", label: "Biblioteca", icon: "library_books" },
 ];
 
 export default function Navbar() {

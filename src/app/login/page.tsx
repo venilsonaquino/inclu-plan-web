@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function LoginPage() {
   return (
-    <body className="font-display bg-background-light min-h-screen flex items-center justify-center relative overflow-hidden">
+    <main className="font-display bg-background-light min-h-screen flex items-center justify-center relative overflow-hidden">
       {/* Organic Gradient Background */}
       <div className="absolute inset-0 organic-gradient pointer-events-none" />
 
@@ -39,9 +39,12 @@ export default function LoginPage() {
                 E-mail
               </label>
               <input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
                 className="w-full h-14 bg-white/60 border border-white/40 rounded-xl px-5 py-3 text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all shadow-sm"
                 placeholder="Digite seu e-mail"
-                type="email"
               />
             </div>
 
@@ -60,9 +63,12 @@ export default function LoginPage() {
               </div>
               <div className="relative flex items-center">
                 <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autoComplete="current-password"
                   className="w-full h-14 bg-white/60 border border-white/40 rounded-xl px-5 py-3 pr-12 text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all shadow-sm"
                   placeholder="Digite sua senha"
-                  type="password"
                 />
                 <button
                   className="absolute right-4 text-slate-400 hover:text-slate-600 transition-colors"
@@ -75,7 +81,7 @@ export default function LoginPage() {
 
             {/* Submit */}
             <div className="pt-4">
-              <Link href="/turmas/nova">
+              <Link href="/turmas/criar">
                 <button
                   className="w-full h-14 rounded-full bg-gradient-to-r from-primary to-secondary text-white font-bold text-lg shadow-lg hover:shadow-primary/30 transition-shadow active:scale-[0.98]"
                   type="button"
@@ -110,6 +116,6 @@ export default function LoginPage() {
           </a>
         </div>
       </div>
-    </body>
+    </main>
   );
 }

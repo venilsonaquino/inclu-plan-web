@@ -45,6 +45,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+button {
+  cursor: pointer;
+}
+
 /* ── Glassmorphism Utilities ── */
 .glass-card {
   background: rgba(255, 255, 255, 0.7);

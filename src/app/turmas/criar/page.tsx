@@ -1,18 +1,108 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Select from "@/components/ui/Select";
+import Button from "@/components/ui/Button";
+
+interface Turma {
+  id: string;
+  nome: string;
+  alunos: any[];
+}
 
 export default function CriacaoTurmaPage() {
+  const router = useRouter();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [selectedTurma, setSelectedTurma] = useState("3º Ano A — Manhã");
-  const [turmas, setTurmas] = useState([
-    "3º Ano A — Manhã",
-    "4º Ano B — Tarde",
-    "5º Ano C — Integral"
-  ]);
+  const [selectedTurma, setSelectedTurma] = useState<string>("");
+  const [turmas, setTurmas] = useState<Turma[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Onboarding Wizard State
+  const [onboardingStep, setOnboardingStep] = useState<1 | 2 | 3>(0 as any); // 0 means loading/undetermined
+
+  // New Turma Form State
+  const [isCreatingTurma, setIsCreatingTurma] = useState(false);
+  const [newTurmaName, setNewTurmaName] = useState("");
+
+  useEffect(() => {
+    fetchTurmas();
+  }, []);
+
+  const fetchTurmas = async () => {
+    try {
+      setIsLoading(true);
+      const res = await fetch("/api/turmas");
+      const data = await res.json();
+      
+      const turmasData = Array.isArray(data) ? data : [];
+      setTurmas(turmasData);
+      
+      if (turmasData.length > 0) {
+        setSelectedTurma(turmasData[0].nome);
+        setOnboardingStep(3); // Regular flow, user already has turmas
+      } else {
+        setOnboardingStep(1); // First time flow
+        setIsCreatingTurma(true); // Force open the form
+      }
+    } catch (error) {
+      console.error("Failed to load turmas via Next.js API route.", error);
+      setTurmas([]);
+      setOnboardingStep(1);
+      setIsCreatingTurma(true);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCreateTurma = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!newTurmaName.trim()) return;
+
+    try {
+      const res = await fetch("/api/turmas", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: newTurmaName })
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed response from /api/turmas");
+      }
+
+      const novaTurma = await res.json();
+      
+      setTurmas([...turmas, novaTurma]);
+      setSelectedTurma(novaTurma.nome);
+      setNewTurmaName("");
+      setIsCreatingTurma(false);
+      setIsDropdownOpen(false);
+
+      if (onboardingStep === 1) {
+        setOnboardingStep(2); // Move to Step 2 (Add Students)
+      }
+    } catch (error) {
+      console.error("Failed to create turma via API route. Triggering UI fallback.", error);
+      
+      // Temporary fallback for UI testing if backend is down
+      const mockTurma = {
+        id: Date.now().toString(),
+        nome: newTurmaName,
+        alunos: []
+      };
+      setTurmas([...turmas, mockTurma]);
+      setSelectedTurma(mockTurma.nome);
+      setNewTurmaName("");
+      setIsCreatingTurma(false);
+      setIsDropdownOpen(false);
+      
+      if (onboardingStep === 1) {
+        setOnboardingStep(2); // Move to Step 2
+      }
+    }
+  };
 
   // State for students and feedback
   const [addedStudents, setAddedStudents] = useState<{name: string, level: string, conditions: string[]}[]>([]);
@@ -45,6 +135,11 @@ export default function CriacaoTurmaPage() {
 
     // Hide success message after 3 seconds
     setTimeout(() => setShowSuccess(false), 3000);
+
+    // If in onboarding, move to step 3 after first student
+    if (onboardingStep === 2) {
+      setOnboardingStep(3);
+    }
   };
 
   const toggleCondition = (condition: string) => {
@@ -60,112 +155,201 @@ export default function CriacaoTurmaPage() {
       <Navbar />
 
       <main className="max-w-3xl mx-auto px-4 py-8 space-y-6">
-        {/* Class Selector Dropdown — 0% esforço cognitivo */}
-        <div className="relative">
-          <button 
-            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="w-full glass-card rounded-2xl p-4 shadow-sm flex items-center gap-4 border-l-4 border-l-green-400 hover:bg-white/50 transition-all text-left group"
-          >
-            <div className="bg-green-100 p-2 rounded-full text-green-600 group-hover:scale-110 transition-transform">
-              <span className="material-symbols-outlined font-bold">check_circle</span>
-            </div>
-            <div className="flex-1">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
-                Lecionando para
-              </p>
-              <h2 className="text-xl font-black text-slate-800 tracking-tight">
-                {selectedTurma}
-              </h2>
-            </div>
-            <div className={`text-slate-300 transition-transform duration-300 ${isDropdownOpen ? 'rotate-180 text-primary' : ''}`}>
-              <span className="material-symbols-outlined text-3xl">expand_more</span>
-            </div>
-          </button>
+        {/* Loading State */}
+        {isLoading && (
+          <div className="flex flex-col items-center justify-center py-20 animate-pulse">
+            <div className="size-12 rounded-full border-4 border-primary/20 border-t-primary animate-spin mb-4" />
+            <p className="text-slate-500 font-bold">Carregando turmas...</p>
+          </div>
+        )}
 
-          {/* Dropdown Menu */}
-          {isDropdownOpen && (
-            <>
-              <div 
-                className="fixed inset-0 z-20" 
-                onClick={() => setIsDropdownOpen(false)} 
-              />
-              <div className="absolute top-full left-0 right-0 mt-3 bg-white/90 backdrop-blur-xl border border-slate-200 rounded-3xl shadow-2xl p-3 z-30 animate-in fade-in zoom-in duration-200 origin-top">
-                <div className="space-y-1 mb-3">
-                  {turmas.map((turma) => (
-                    <button
-                      key={turma}
-                      onClick={() => {
-                        setSelectedTurma(turma);
-                        setIsDropdownOpen(false);
-                      }}
-                      className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all ${
-                        selectedTurma === turma 
-                          ? 'bg-primary/10 text-primary' 
-                          : 'hover:bg-slate-50 text-slate-600'
-                      }`}
-                    >
-                      <span className="font-bold">{turma}</span>
-                      {selectedTurma === turma && (
-                        <span className="material-symbols-outlined text-sm font-bold">check</span>
+        {/* Onboarding Wizard - Step 1: Empty State (No Turmas) */}
+        {!isLoading && onboardingStep === 1 && !isCreatingTurma && (
+          <div className="glass-card rounded-2xl p-12 shadow-xl flex flex-col items-center text-center animate-in zoom-in-95 duration-500">
+            <div className="size-24 bg-primary/10 text-primary rounded-full flex items-center justify-center mb-6">
+              <span className="material-symbols-outlined !text-5xl">inventory_2</span>
+            </div>
+            <h2 className="text-3xl font-black text-slate-900 mb-4 tracking-tight">Nenhuma turma encontrada</h2>
+            <p className="text-slate-500 max-w-md mb-8 text-lg">
+              Para começar a adicionar alunos, você primeiro precisa criar uma turma que irá abrigá-los.
+            </p>
+            <Button size="lg" variant="primary" onClick={() => setIsCreatingTurma(true)} className="px-10 py-5 text-lg shadow-xl shadow-primary/30 gap-3">
+              <span className="material-symbols-outlined">add_circle</span>
+              Criar Primeira Turma
+            </Button>
+          </div>
+        )}
+
+        {/* Onboarding Wizard - Step 1: Creating First Turma Form */}
+        {!isLoading && onboardingStep === 1 && isCreatingTurma && (
+           <div className="glass-card rounded-2xl p-8 max-w-xl mx-auto shadow-xl animate-in slide-in-from-bottom-8 duration-500 mt-12">
+             <div className="mb-8 flex flex-col items-center text-center">
+               <div className="bg-primary/10 text-primary px-4 py-2 rounded-full font-bold text-sm tracking-widest uppercase mb-6 inline-flex items-center gap-2">
+                 <span className="material-symbols-outlined text-base">flag</span>
+                 Passo 1 de 2
+               </div>
+               <h2 className="text-3xl font-black text-slate-900 tracking-tight mb-2">Qual o nome da sua turma?</h2>
+               <p className="text-slate-500 text-lg">Dê um nome simples para identificar seus alunos depois.</p>
+             </div>
+             <form onSubmit={handleCreateTurma} className="space-y-6">
+               <input
+                 autoFocus
+                 value={newTurmaName}
+                 onChange={(e) => setNewTurmaName(e.target.value)}
+                 className="w-full bg-white border-2 border-slate-100 rounded-2xl px-6 py-5 text-xl font-bold text-slate-900 placeholder:text-slate-300 focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all shadow-sm text-center"
+                 placeholder="Ex: 3º Ano A — Manhã"
+                 type="text"
+               />
+               <Button size="lg" variant="primary" className="w-full py-5 text-lg shadow-xl shadow-primary/30 gap-3" disabled={!newTurmaName.trim()}>
+                 Criar Turma e Avançar
+                 <span className="material-symbols-outlined">arrow_forward</span>
+               </Button>
+               {turmas.length > 0 && ( /* Only show cancel if they somehow got back here with turmas */
+                 <button 
+                   type="button" 
+                   onClick={() => setIsCreatingTurma(false)}
+                   className="w-full text-slate-400 font-bold hover:text-slate-600 transition-colors uppercase tracking-widest text-xs py-2 mt-4"
+                 >
+                   Cancelar
+                 </button>
+               )}
+             </form>
+           </div>
+        )}
+
+        {/* Normal Layout and Onboarding Wizard - Step 2 (When Turmas Exist) */}
+        {!isLoading && onboardingStep >= 2 && (
+          <>
+            {/* Class Selector Dropdown — 0% esforço cognitivo */}
+            <div className="relative">
+              <button 
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="w-full glass-card rounded-2xl p-4 shadow-sm flex items-center gap-4 border-l-4 border-l-green-400 hover:bg-white/50 transition-all text-left group"
+              >
+                <div className="bg-green-100 p-2 rounded-full text-green-600 group-hover:scale-110 transition-transform">
+                  <span className="material-symbols-outlined font-bold">check_circle</span>
+                </div>
+                <div className="flex-1">
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                    Lecionando para
+                  </p>
+                  <h2 className="text-xl font-black text-slate-800 tracking-tight">
+                    {selectedTurma}
+                  </h2>
+                </div>
+                <div className={`text-slate-300 transition-transform duration-300 ${isDropdownOpen ? 'rotate-180 text-primary' : ''}`}>
+                  <span className="material-symbols-outlined text-3xl">expand_more</span>
+                </div>
+              </button>
+
+              {/* Dropdown Menu */}
+              {isDropdownOpen && (
+                <>
+                  <div 
+                    className="fixed inset-0 z-20" 
+                    onClick={() => setIsDropdownOpen(false)} 
+                  />
+                  <div className="absolute top-full left-0 right-0 mt-3 bg-white/90 backdrop-blur-xl border border-slate-200 rounded-3xl shadow-2xl p-3 z-30 animate-in fade-in zoom-in duration-200 origin-top overflow-hidden">
+                    <div className="space-y-1 mb-3 max-h-60 overflow-y-auto no-scrollbar">
+                      {turmas.map((turma) => (
+                        <button
+                          key={turma.id}
+                          onClick={() => {
+                            setSelectedTurma(turma.nome);
+                            setIsDropdownOpen(false);
+                            setIsCreatingTurma(false);
+                          }}
+                          className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all ${
+                            selectedTurma === turma.nome 
+                              ? 'bg-primary/10 text-primary' 
+                              : 'hover:bg-slate-50 text-slate-600'
+                          }`}
+                        >
+                          <span className="font-bold">{turma.nome}</span>
+                          {selectedTurma === turma.nome && (
+                            <span className="material-symbols-outlined text-sm font-bold">check</span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                    
+                    <div className="border-t border-slate-100 pt-3">
+                      {!isCreatingTurma ? (
+                        <button 
+                          onClick={() => setIsCreatingTurma(true)}
+                          className="w-full flex items-center gap-3 p-4 rounded-2xl text-primary font-black hover:bg-primary/5 transition-all text-sm uppercase tracking-widest"
+                        >
+                          <span className="material-symbols-outlined">add_circle</span>
+                          Criar Nova Turma
+                        </button>
+                      ) : (
+                        <form onSubmit={handleCreateTurma} className="px-2 pb-2">
+                           <input
+                             autoFocus
+                             value={newTurmaName}
+                             onChange={(e) => setNewTurmaName(e.target.value)}
+                             className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-900 placeholder:text-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all mb-3 ml-1"
+                             placeholder="Nome da nova turma..."
+                             type="text"
+                           />
+                           <div className="flex gap-2">
+                             <Button size="sm" variant="primary" className="w-full" disabled={!newTurmaName.trim()}>
+                               Concluir
+                             </Button>
+                             <button type="button" onClick={() => setIsCreatingTurma(false)} className="w-full text-slate-500 font-bold hover:bg-slate-100 rounded-lg p-2 text-xs uppercase tracking-widest">
+                               Cancelar
+                             </button>
+                           </div>
+                        </form>
                       )}
-                    </button>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Success Feedback Toast */}
+            {showSuccess && (
+              <div className="fixed top-24 right-4 z-50 animate-in slide-in-from-right duration-300">
+                <div className="bg-green-500 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3">
+                  <span className="material-symbols-outlined font-bold">check_circle</span>
+                  <div>
+                    <p className="font-bold">Aluno Adicionado!</p>
+                    <p className="text-xs opacity-90 text-green-50">O perfil foi criado com sucesso.</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Added Students List — Visual Progress */}
+            {addedStudents.length > 0 && (
+              <div className="space-y-4 animate-in fade-in slide-in-from-top duration-500">
+                <div className="flex items-center justify-between px-2">
+                  <h4 className="text-sm font-black uppercase tracking-widest text-slate-400">
+                    Alunos na Turma ({addedStudents.length})
+                  </h4>
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  {addedStudents.map((s, i) => (
+                    <div key={i} className="flex items-center gap-3 bg-white border border-slate-100 p-2 pr-4 rounded-full shadow-sm animate-in zoom-in duration-300">
+                      <div className="size-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm">
+                        {s.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-slate-800 leading-none">{s.name}</p>
+                        <p className="text-[10px] text-slate-400 font-medium">{s.conditions.join(', ') || 'Sem condições'}</p>
+                      </div>
+                    </div>
                   ))}
                 </div>
-                
-                <div className="border-t border-slate-100 pt-3">
-                  <Link href="/turmas/nova">
-                    <button className="w-full flex items-center gap-3 p-4 rounded-2xl text-primary font-black hover:bg-primary/5 transition-all text-sm uppercase tracking-widest">
-                      <span className="material-symbols-outlined">add_circle</span>
-                      Criar Nova Turma
-                    </button>
-                  </Link>
-                </div>
               </div>
-            </>
-          )}
-        </div>
+            )}
 
-        {/* Success Feedback Toast */}
-        {showSuccess && (
-          <div className="fixed top-24 right-4 z-50 animate-in slide-in-from-right duration-300">
-            <div className="bg-green-500 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3">
-              <span className="material-symbols-outlined font-bold">check_circle</span>
-              <div>
-                <p className="font-bold">Aluno Adicionado!</p>
-                <p className="text-xs opacity-90 text-green-50">O perfil foi criado com sucesso.</p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Added Students List — Visual Progress */}
-        {addedStudents.length > 0 && (
-          <div className="space-y-4 animate-in fade-in slide-in-from-top duration-500">
-            <div className="flex items-center justify-between px-2">
-              <h4 className="text-sm font-black uppercase tracking-widest text-slate-400">
-                Alunos na Turma ({addedStudents.length})
-              </h4>
-            </div>
-            <div className="flex flex-wrap gap-3">
-              {addedStudents.map((s, i) => (
-                <div key={i} className="flex items-center gap-3 bg-white border border-slate-100 p-2 pr-4 rounded-full shadow-sm animate-in zoom-in duration-300">
-                  <div className="size-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm">
-                    {s.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-slate-800 leading-none">{s.name}</p>
-                    <p className="text-[10px] text-slate-400 font-medium">{s.conditions.join(', ') || 'Sem condições'}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Main Form Card */}
-        <div className="glass-card rounded-xl p-8 shadow-xl relative overflow-hidden">
-          {/* Subtle background flair */}
-          <div className="absolute -top-24 -right-24 size-48 bg-primary/5 rounded-full blur-3xl" />
+            {/* Main Form Card (Hidden in Onboarding Step 3) */}
+            {onboardingStep !== 3 && (
+              <div className="glass-card rounded-xl p-8 shadow-xl relative overflow-hidden mt-6 animate-in fade-in zoom-in-95 duration-500">
+                {/* Subtle background flair */}
+                <div className="absolute -top-24 -right-24 size-48 bg-primary/5 rounded-full blur-3xl" />
           
           <div className="mb-8 flex justify-between items-start">
             <div>
@@ -176,10 +360,12 @@ export default function CriacaoTurmaPage() {
                 Preencha os dados do estudante para personalizar o plano de ensino.
               </p>
             </div>
-            <div className="bg-slate-50 px-4 py-2 rounded-xl border border-slate-100 flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary text-sm">group</span>
-              <span className="text-xs font-bold text-slate-600 uppercase tracking-tighter">Passo 2 de 2</span>
-            </div>
+            {onboardingStep === 2 && (
+              <div className="bg-primary/10 px-4 py-2 rounded-xl border border-primary/20 flex items-center gap-2 animate-pulse">
+                <span className="material-symbols-outlined text-primary text-sm">group</span>
+                <span className="text-xs font-bold text-primary uppercase tracking-tighter">Passo 2 de 2</span>
+              </div>
+            )}
           </div>
 
           <form onSubmit={handleAddStudent} className="space-y-8">
@@ -276,7 +462,7 @@ export default function CriacaoTurmaPage() {
                 type="submit"
               >
                 <span className="material-symbols-outlined">person_add</span>
-                Adicionar Aluno
+                {onboardingStep === 2 ? "Adicionar Primeiro Aluno" : "Adicionar Aluno"}
               </button>
               <p className="text-center text-xs text-slate-400 mt-4 leading-relaxed">
                 Ao adicionar, o aluno será vinculado à turma <span className="text-primary font-bold">{selectedTurma}</span>.
@@ -284,24 +470,44 @@ export default function CriacaoTurmaPage() {
             </div>
           </form>
         </div>
+        )}
 
-        {/* Progress Footer */}
-        <div className="flex items-center justify-between px-2 pt-4 border-t border-slate-200">
-          <Link href="/turmas/nova" className="text-slate-500 font-medium flex items-center gap-1 hover:text-slate-700">
-            <span className="material-symbols-outlined text-lg">
-              arrow_back
-            </span>
-            Voltar
-          </Link>
-          <div className="flex gap-2">
-            <div className="h-1.5 w-6 rounded-full bg-primary/20" />
-            <div className="h-1.5 w-12 rounded-full bg-primary" />
-            <div className="h-1.5 w-6 rounded-full bg-slate-200" />
+        {/* Onboarding Step 3: Final CTA to Finish Flow */}
+        {onboardingStep === 3 && (
+          <div className="glass-card rounded-2xl p-10 shadow-2xl border-primary/20 flex flex-col items-center text-center animate-in zoom-in-95 duration-500 mt-6 relative overflow-hidden">
+            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-primary to-secondary"></div>
+            
+            <div className="size-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-6 shadow-inner">
+              <span className="material-symbols-outlined !text-4xl font-bold">task_alt</span>
+            </div>
+            
+            <h3 className="text-2xl font-black text-slate-900 mb-3 tracking-tight">Tudo pronto por aqui!</h3>
+            <p className="text-base text-slate-500 mb-8 max-w-sm">
+              Sua turma <strong className="text-slate-700">{selectedTurma}</strong> já tem perfil criado. Vamos testar a geração do seu primeiro plano de ensino adaptado?
+            </p>
+            
+            <div className="w-full space-y-4 max-w-sm">
+              <Button 
+                size="lg" 
+                variant="primary" 
+                className="w-full py-5 text-lg shadow-xl shadow-primary/40 flex items-center justify-center gap-3"
+                onClick={() => router.push('/planos/criar')}
+              >
+                <span className="material-symbols-outlined">auto_awesome</span>
+                Gerar Plano de Aula
+              </Button>
+              
+              <button 
+                onClick={() => setOnboardingStep(2)}
+                className="w-full text-slate-500 font-bold hover:text-slate-800 transition-colors uppercase tracking-widest text-xs py-3"
+              >
+                Adicionar mais alunos agora
+              </button>
+            </div>
           </div>
-          <Link href="/planos/criar" className="text-primary font-bold hover:underline">
-            Pular
-          </Link>
-        </div>
+        )}
+        </>
+        )}
       </main>
     </div>
   );

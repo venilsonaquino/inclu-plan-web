@@ -27,7 +27,10 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className={`${inter.variable} font-display antialiased`}>
+      <body 
+        className={`${inter.variable} font-display antialiased`}
+        suppressHydrationWarning
+      >
         {children}
       </body>
     </html>
