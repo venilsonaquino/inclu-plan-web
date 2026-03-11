@@ -1,0 +1,450 @@
+<!DOCTYPE html><html lang="pt-BR"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ea3eb9",
+                        "secondary": "#a24af1",
+                        "background-light": "#f8f6f7",
+                        "background-dark": "#21111d",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+        .subject-tab[data-active="true"] {
+            background-color: white;
+            box-shadow: 0 10px 15px -3px rgba(234, 62, 185, 0.1);
+            color: #ea3eb9;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<header class="flex items-center justify-between px-6 py-4 lg:px-20 border-b border-primary/10 bg-white/50 backdrop-blur-md sticky top-0 z-50">
+<div class="flex items-center gap-3">
+<div class="size-10 bg-primary rounded-lg flex items-center justify-center text-white">
+<span class="material-symbols-outlined !text-3xl" style="">auto_awesome</span>
+</div>
+<h2 class="text-slate-900 dark:text-white text-xl font-extrabold tracking-tight" style="">incluPlan</h2>
+</div>
+<div class="flex flex-1 justify-end gap-6 items-center">
+<nav class="hidden md:flex gap-6">
+<a class="text-primary font-semibold flex items-center gap-2" href="#" style="">
+<span class="material-symbols-outlined" style="">home</span> Início
+                        </a>
+<a class="text-slate-600 dark:text-slate-300 font-medium hover:text-primary transition-colors flex items-center gap-2" href="#" style="">
+<span class="material-symbols-outlined" style="">library_books</span> Biblioteca
+                        </a>
+</nav>
+<div class="h-10 w-10 rounded-full border-2 border-primary bg-cover bg-center" data-alt="User profile avatar circle" style="background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuADQRCkzzUDrFD1UGU5hv8cOCNq_VhR4R-YcfWzX3LHOpwKZywmjUeq4EJXvbz-XDnFlBQIJ6959ia_-PAOaQw8NI8xGu-4q4pDgGcGHVDacqYPJSJv3KrRgOYAEf_M--gXV3XLTP2DrauwTOgIHL-CV5yDVmv4f0W2-heteoBJBjYJt5V5id2wN7qpj5CywVohpeiAXudyTSv9VcYtbE9zEhQYYL0z9FFINnsmKVNR8MD0ZNrV1MNfEAWugaE1sgiyPLXOz-RTCBA&quot;);"></div>
+</div>
+</header>
+<main class="flex-1 px-6 lg:px-20 py-10 max-w-7xl mx-auto w-full space-y-12">
+<section class="space-y-8">
+<div class="flex flex-col gap-2">
+<h1 class="text-4xl font-black tracking-tight text-slate-900" style="">Criar Novo Plano de Aula</h1>
+<p class="text-slate-500 font-medium" style="">Preencha os dados abaixo para gerar um plano personalizado com IA.</p>
+</div>
+<div class="glass-card rounded-xl p-8 shadow-sm space-y-8">
+<div>
+<p class="text-sm font-bold uppercase tracking-widest text-slate-400 mb-4" style="">Selecione a Matéria</p>
+<div class="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-9 gap-3"><button class="subject-tab flex flex-col items-center justify-center p-4 rounded-lg border-2 border-transparent transition-all hover:bg-white/80 group" data-active="true" style="">
+<div class="size-12 bg-primary/10 rounded-full flex items-center justify-center text-primary group-hover:scale-110 transition-transform mb-2">
+<span class="material-symbols-outlined" style="">menu_book</span>
+</div>
+<span class="text-xs font-bold" style="">Português</span>
+</button>
+<button class="subject-tab flex flex-col items-center justify-center p-4 rounded-lg border-2 border-transparent transition-all hover:bg-white/80 group" data-active="false" style="">
+<div class="size-12 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 group-hover:scale-110 transition-transform mb-2">
+<span class="material-symbols-outlined" style="">calculate</span>
+</div>
+<span class="text-xs font-bold text-slate-500" style="">Matemática</span>
+</button>
+<button class="subject-tab flex flex-col items-center justify-center p-4 rounded-lg border-2 border-transparent transition-all hover:bg-white/80 group" data-active="false" style="">
+<div class="size-12 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 group-hover:scale-110 transition-transform mb-2">
+<span class="material-symbols-outlined" style="">science</span>
+</div>
+<span class="text-xs font-bold text-slate-500" style="">Ciências</span>
+</button>
+<button class="subject-tab flex flex-col items-center justify-center p-4 rounded-lg border-2 border-transparent transition-all hover:bg-white/80 group" data-active="false" style="">
+<div class="size-12 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 group-hover:scale-110 transition-transform mb-2">
+<span class="material-symbols-outlined" style="">history_edu</span>
+</div>
+<span class="text-xs font-bold text-slate-500" style="">História</span>
+</button>
+<button class="subject-tab flex flex-col items-center justify-center p-4 rounded-lg border-2 border-transparent transition-all hover:bg-white/80 group" data-active="false" style="">
+<div class="size-12 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 group-hover:scale-110 transition-transform mb-2">
+<span class="material-symbols-outlined" style="">public</span>
+</div>
+<span class="text-xs font-bold text-slate-500" style="">Geografia</span>
+</button>
+<button class="subject-tab flex flex-col items-center justify-center p-4 rounded-lg border-2 border-transparent transition-all hover:bg-white/80 group" data-active="false" style="">
+<div class="size-12 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 group-hover:scale-110 transition-transform mb-2">
+<span class="material-symbols-outlined" style="">palette</span>
+</div>
+<span class="text-xs font-bold text-slate-500" style="">Arte</span>
+</button>
+<button class="subject-tab flex flex-col items-center justify-center p-4 rounded-lg border-2 border-transparent transition-all hover:bg-white/80 group" data-active="false" style="">
+<div class="size-12 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 group-hover:scale-110 transition-transform mb-2">
+<span class="material-symbols-outlined" style="">fitness_center</span>
+</div>
+<span class="text-xs font-bold text-slate-500" style="">Ed. Física</span>
+</button>
+<button class="subject-tab flex flex-col items-center justify-center p-4 rounded-lg border-2 border-transparent transition-all hover:bg-white/80 group" data-active="false" style="">
+<div class="size-12 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 group-hover:scale-110 transition-transform mb-2">
+<span class="material-symbols-outlined" style="">translate</span>
+</div>
+<span class="text-xs font-bold text-slate-500" style="">Inglês</span>
+</button>
+<button class="subject-tab flex flex-col items-center justify-center p-4 rounded-lg border-2 border-transparent transition-all hover:bg-white/80 group" data-active="false" style="">
+<div class="size-12 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 group-hover:scale-110 transition-transform mb-2">
+<span class="material-symbols-outlined" style="">church</span>
+</div>
+<span class="text-xs font-bold text-slate-500" style="">Religião</span>
+</button></div>
+</div><div>
+<p class="text-sm font-bold uppercase tracking-widest text-slate-400 mb-4" style="">Atribuir Alunos</p>
+<div class="flex items-center gap-4 overflow-x-auto pb-4 no-scrollbar">
+<div class="flex-none flex flex-col items-center gap-2">
+<label class="relative cursor-pointer group" style="">
+<input checked="" class="peer sr-only" type="checkbox">
+<div class="size-14 rounded-full border-2 border-transparent peer-checked:border-primary transition-all p-0.5 overflow-hidden bg-slate-200">
+<img alt="Student" class="w-full h-full object-cover rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuADQRCkzzUDrFD1UGU5hv8cOCNq_VhR4R-YcfWzX3LHOpwKZywmjUeq4EJXvbz-XDnFlBQIJ6959ia_-PAOaQw8NI8xGu-4q4pDgGcGHVDacqYPJSJv3KrRgOYAEf_M--gXV3XLTP2DrauwTOgIHL-CV5yDVmv4f0W2-heteoBJBjYJt5V5id2wN7qpj5CywVohpeiAXudyTSv9VcYtbE9zEhQYYL0z9FFINnsmKVNR8MD0ZNrV1MNfEAWugaE1sgiyPLXOz-RTCBA" style="">
+</div>
+<div class="absolute -top-1 -right-1 size-5 bg-primary text-white rounded-full flex items-center justify-center opacity-0 peer-checked:opacity-100 transition-opacity">
+<span class="material-symbols-outlined !text-sm" style="">check</span>
+</div>
+</label>
+<span class="text-xs font-bold text-slate-600" style="">Todos</span>
+</div>
+<div class="flex-none flex flex-col items-center gap-2">
+<label class="relative cursor-pointer group" style="">
+<input class="peer sr-only" type="checkbox">
+<div class="size-14 rounded-full border-2 border-transparent peer-checked:border-primary transition-all p-0.5 overflow-hidden bg-slate-200">
+<div class="w-full h-full rounded-full bg-blue-100 flex items-center justify-center text-blue-500 font-bold text-lg" style="">LA</div>
+</div>
+<div class="absolute -top-1 -right-1 size-5 bg-primary text-white rounded-full flex items-center justify-center opacity-0 peer-checked:opacity-100 transition-opacity">
+<span class="material-symbols-outlined !text-sm" style="">check</span>
+</div>
+</label>
+<span class="text-xs font-bold text-slate-600" style="">Lucas A.</span>
+</div>
+<div class="flex-none flex flex-col items-center gap-2">
+<label class="relative cursor-pointer group" style="">
+<input class="peer sr-only" type="checkbox">
+<div class="size-14 rounded-full border-2 border-transparent peer-checked:border-primary transition-all p-0.5 overflow-hidden bg-slate-200">
+<div class="w-full h-full rounded-full bg-purple-100 flex items-center justify-center text-purple-500 font-bold text-lg" style="">MS</div>
+</div>
+<div class="absolute -top-1 -right-1 size-5 bg-primary text-white rounded-full flex items-center justify-center opacity-0 peer-checked:opacity-100 transition-opacity">
+<span class="material-symbols-outlined !text-sm" style="">check</span>
+</div>
+</label>
+<span class="text-xs font-bold text-slate-600" style="">Maria S.</span>
+</div>
+<div class="flex-none flex flex-col items-center gap-2">
+<label class="relative cursor-pointer group" style="">
+<input class="peer sr-only" type="checkbox">
+<div class="size-14 rounded-full border-2 border-transparent peer-checked:border-primary transition-all p-0.5 overflow-hidden bg-slate-200">
+<div class="w-full h-full rounded-full bg-emerald-100 flex items-center justify-center text-emerald-500 font-bold text-lg" style="">JP</div>
+</div>
+<div class="absolute -top-1 -right-1 size-5 bg-primary text-white rounded-full flex items-center justify-center opacity-0 peer-checked:opacity-100 transition-opacity">
+<span class="material-symbols-outlined !text-sm" style="">check</span>
+</div>
+</label>
+<span class="text-xs font-bold text-slate-600" style="">João P.</span>
+</div>
+<button class="flex-none size-14 rounded-full border-2 border-dashed border-slate-300 flex items-center justify-center text-slate-400 hover:border-primary hover:text-primary transition-colors" style="">
+<span class="material-symbols-outlined" style="">add</span>
+</button>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+<div class="flex flex-col gap-2">
+<label class="text-sm font-bold text-slate-700" style="">Tema da Aula</label>
+<input class="w-full px-5 py-4 rounded-lg bg-white/50 border-slate-200 focus:border-primary focus:ring-primary/20 text-slate-800 placeholder:text-slate-400" placeholder="Ex: O Ciclo da Água, Orações Subordinadas..." type="text">
+</div>
+<div class="flex flex-col gap-2">
+<label class="text-sm font-bold text-slate-700" style="">Observações do Professor</label>
+<textarea class="w-full px-5 py-4 rounded-lg bg-white/50 border-slate-200 focus:border-primary focus:ring-primary/20 text-slate-800 placeholder:text-slate-400" placeholder="Ex: Focar em acessibilidade para alunos com TDAH..." rows="1"></textarea>
+</div>
+</div>
+<div class="pt-4">
+<button class="w-full lg:w-auto px-10 py-5 rounded-lg bg-gradient-to-r from-primary to-secondary text-white font-bold text-lg shadow-lg shadow-primary/30 hover:shadow-primary/50 hover:scale-[1.02] transition-all flex items-center justify-center gap-3" style="">
+<span class="material-symbols-outlined" style="">auto_fix_high</span>
+                                Gerar Plano de Aula
+                            </button>
+</div>
+</div>
+</section>
+<section class="space-y-6">
+<div class="flex items-center justify-between">
+<h2 class="text-2xl font-bold text-slate-900" style="">Meus Planos de Aula</h2>
+<button class="text-primary font-bold hover:underline flex items-center gap-1" style="">
+                            Ver tudo <span class="material-symbols-outlined text-sm" style="">arrow_forward</span>
+</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+<div class="glass-card rounded-xl p-6 hover:shadow-xl hover:-translate-y-1 transition-all group border-l-4 border-l-primary">
+<div class="flex justify-between items-start mb-4">
+<div class="p-3 bg-primary/10 rounded-lg text-primary">
+<span class="material-symbols-outlined" style="">menu_book</span>
+</div>
+<div class="flex gap-2">
+<button class="p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-primary transition-colors" title="Visualizar" style="">
+<span class="material-symbols-outlined" style="">visibility</span>
+</button>
+<button class="p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-primary transition-colors" title="Baixar PDF" style="">
+<span class="material-symbols-outlined" style="">picture_as_pdf</span>
+</button>
+</div>
+</div><div>
+<p class="text-sm font-bold uppercase tracking-widest text-slate-400 mb-4" style="">Atribuir Alunos</p>
+<div class="flex items-center gap-4 overflow-x-auto pb-4 no-scrollbar">
+<div class="flex-none flex flex-col items-center gap-2">
+<label class="relative cursor-pointer group" style="">
+<input checked="" class="peer sr-only" type="checkbox">
+<div class="size-14 rounded-full border-2 border-transparent peer-checked:border-primary transition-all p-0.5 overflow-hidden bg-slate-200">
+<img alt="Student" class="w-full h-full object-cover rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuADQRCkzzUDrFD1UGU5hv8cOCNq_VhR4R-YcfWzX3LHOpwKZywmjUeq4EJXvbz-XDnFlBQIJ6959ia_-PAOaQw8NI8xGu-4q4pDgGcGHVDacqYPJSJv3KrRgOYAEf_M--gXV3XLTP2DrauwTOgIHL-CV5yDVmv4f0W2-heteoBJBjYJt5V5id2wN7qpj5CywVohpeiAXudyTSv9VcYtbE9zEhQYYL0z9FFINnsmKVNR8MD0ZNrV1MNfEAWugaE1sgiyPLXOz-RTCBA" style="">
+</div>
+<div class="absolute -top-1 -right-1 size-5 bg-primary text-white rounded-full flex items-center justify-center opacity-0 peer-checked:opacity-100 transition-opacity">
+<span class="material-symbols-outlined !text-sm" style="">check</span>
+</div>
+</label>
+<span class="text-xs font-bold text-slate-600" style="">Todos</span>
+</div>
+<div class="flex-none flex flex-col items-center gap-2">
+<label class="relative cursor-pointer group" style="">
+<input class="peer sr-only" type="checkbox">
+<div class="size-14 rounded-full border-2 border-transparent peer-checked:border-primary transition-all p-0.5 overflow-hidden bg-slate-200">
+<div class="w-full h-full rounded-full bg-blue-100 flex items-center justify-center text-blue-500 font-bold text-lg" style="">LA</div>
+</div>
+<div class="absolute -top-1 -right-1 size-5 bg-primary text-white rounded-full flex items-center justify-center opacity-0 peer-checked:opacity-100 transition-opacity">
+<span class="material-symbols-outlined !text-sm" style="">check</span>
+</div>
+</label>
+<span class="text-xs font-bold text-slate-600" style="">Lucas A.</span>
+</div>
+<div class="flex-none flex flex-col items-center gap-2">
+<label class="relative cursor-pointer group" style="">
+<input class="peer sr-only" type="checkbox">
+<div class="size-14 rounded-full border-2 border-transparent peer-checked:border-primary transition-all p-0.5 overflow-hidden bg-slate-200">
+<div class="w-full h-full rounded-full bg-purple-100 flex items-center justify-center text-purple-500 font-bold text-lg" style="">MS</div>
+</div>
+<div class="absolute -top-1 -right-1 size-5 bg-primary text-white rounded-full flex items-center justify-center opacity-0 peer-checked:opacity-100 transition-opacity">
+<span class="material-symbols-outlined !text-sm" style="">check</span>
+</div>
+</label>
+<span class="text-xs font-bold text-slate-600" style="">Maria S.</span>
+</div>
+<div class="flex-none flex flex-col items-center gap-2">
+<label class="relative cursor-pointer group" style="">
+<input class="peer sr-only" type="checkbox">
+<div class="size-14 rounded-full border-2 border-transparent peer-checked:border-primary transition-all p-0.5 overflow-hidden bg-slate-200">
+<div class="w-full h-full rounded-full bg-emerald-100 flex items-center justify-center text-emerald-500 font-bold text-lg" style="">JP</div>
+</div>
+<div class="absolute -top-1 -right-1 size-5 bg-primary text-white rounded-full flex items-center justify-center opacity-0 peer-checked:opacity-100 transition-opacity">
+<span class="material-symbols-outlined !text-sm" style="">check</span>
+</div>
+</label>
+<span class="text-xs font-bold text-slate-600" style="">João P.</span>
+</div>
+<button class="flex-none size-14 rounded-full border-2 border-dashed border-slate-300 flex items-center justify-center text-slate-400 hover:border-primary hover:text-primary transition-colors" style="">
+<span class="material-symbols-outlined" style="">add</span>
+</button>
+</div>
+</div>
+<h3 class="text-lg font-bold text-slate-900 mb-1 group-hover:text-primary transition-colors" style="">Interpretação de Textos</h3>
+<p class="text-sm text-slate-500 line-clamp-2" style="">Plano focado em gêneros textuais e compreensão de crônicas contemporâneas.</p>
+<div class="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center text-xs font-bold text-slate-400 uppercase tracking-widest">
+<span class="" style="">Ensino Fundamental II</span>
+<span class="" style="">Há 2 dias</span>
+</div>
+</div>
+<div class="glass-card rounded-xl p-6 hover:shadow-xl hover:-translate-y-1 transition-all group border-l-4 border-l-orange-400">
+<div class="flex justify-between items-start mb-4">
+<div class="p-3 bg-orange-100 rounded-lg text-orange-500">
+<span class="material-symbols-outlined" style="">explore</span>
+</div>
+<div class="flex gap-2">
+<button class="p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-primary transition-colors" title="Visualizar" style="">
+<span class="material-symbols-outlined" style="">visibility</span>
+</button>
+<button class="p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-primary transition-colors" title="Baixar PDF" style="">
+<span class="material-symbols-outlined" style="">picture_as_pdf</span>
+</button>
+</div>
+</div><div>
+<p class="text-sm font-bold uppercase tracking-widest text-slate-400 mb-4" style="">Atribuir Alunos</p>
+<div class="flex items-center gap-4 overflow-x-auto pb-4 no-scrollbar">
+<div class="flex-none flex flex-col items-center gap-2">
+<label class="relative cursor-pointer group" style="">
+<input checked="" class="peer sr-only" type="checkbox">
+<div class="size-14 rounded-full border-2 border-transparent peer-checked:border-primary transition-all p-0.5 overflow-hidden bg-slate-200">
+<img alt="Student" class="w-full h-full object-cover rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuADQRCkzzUDrFD1UGU5hv8cOCNq_VhR4R-YcfWzX3LHOpwKZywmjUeq4EJXvbz-XDnFlBQIJ6959ia_-PAOaQw8NI8xGu-4q4pDgGcGHVDacqYPJSJv3KrRgOYAEf_M--gXV3XLTP2DrauwTOgIHL-CV5yDVmv4f0W2-heteoBJBjYJt5V5id2wN7qpj5CywVohpeiAXudyTSv9VcYtbE9zEhQYYL0z9FFINnsmKVNR8MD0ZNrV1MNfEAWugaE1sgiyPLXOz-RTCBA" style="">
+</div>
+<div class="absolute -top-1 -right-1 size-5 bg-primary text-white rounded-full flex items-center justify-center opacity-0 peer-checked:opacity-100 transition-opacity">
+<span class="material-symbols-outlined !text-sm" style="">check</span>
+</div>
+</label>
+<span class="text-xs font-bold text-slate-600" style="">Todos</span>
+</div>
+<div class="flex-none flex flex-col items-center gap-2">
+<label class="relative cursor-pointer group" style="">
+<input class="peer sr-only" type="checkbox">
+<div class="size-14 rounded-full border-2 border-transparent peer-checked:border-primary transition-all p-0.5 overflow-hidden bg-slate-200">
+<div class="w-full h-full rounded-full bg-blue-100 flex items-center justify-center text-blue-500 font-bold text-lg" style="">LA</div>
+</div>
+<div class="absolute -top-1 -right-1 size-5 bg-primary text-white rounded-full flex items-center justify-center opacity-0 peer-checked:opacity-100 transition-opacity">
+<span class="material-symbols-outlined !text-sm" style="">check</span>
+</div>
+</label>
+<span class="text-xs font-bold text-slate-600" style="">Lucas A.</span>
+</div>
+<div class="flex-none flex flex-col items-center gap-2">
+<label class="relative cursor-pointer group" style="">
+<input class="peer sr-only" type="checkbox">
+<div class="size-14 rounded-full border-2 border-transparent peer-checked:border-primary transition-all p-0.5 overflow-hidden bg-slate-200">
+<div class="w-full h-full rounded-full bg-purple-100 flex items-center justify-center text-purple-500 font-bold text-lg" style="">MS</div>
+</div>
+<div class="absolute -top-1 -right-1 size-5 bg-primary text-white rounded-full flex items-center justify-center opacity-0 peer-checked:opacity-100 transition-opacity">
+<span class="material-symbols-outlined !text-sm" style="">check</span>
+</div>
+</label>
+<span class="text-xs font-bold text-slate-600" style="">Maria S.</span>
+</div>
+<div class="flex-none flex flex-col items-center gap-2">
+<label class="relative cursor-pointer group" style="">
+<input class="peer sr-only" type="checkbox">
+<div class="size-14 rounded-full border-2 border-transparent peer-checked:border-primary transition-all p-0.5 overflow-hidden bg-slate-200">
+<div class="w-full h-full rounded-full bg-emerald-100 flex items-center justify-center text-emerald-500 font-bold text-lg" style="">JP</div>
+</div>
+<div class="absolute -top-1 -right-1 size-5 bg-primary text-white rounded-full flex items-center justify-center opacity-0 peer-checked:opacity-100 transition-opacity">
+<span class="material-symbols-outlined !text-sm" style="">check</span>
+</div>
+</label>
+<span class="text-xs font-bold text-slate-600" style="">João P.</span>
+</div>
+<button class="flex-none size-14 rounded-full border-2 border-dashed border-slate-300 flex items-center justify-center text-slate-400 hover:border-primary hover:text-primary transition-colors" style="">
+<span class="material-symbols-outlined" style="">add</span>
+</button>
+</div>
+</div>
+<h3 class="text-lg font-bold text-slate-900 mb-1 group-hover:text-primary transition-colors" style="">Geometria Espacial</h3>
+<p class="text-sm text-slate-500 line-clamp-2" style="">Introdução aos volumes de prismas e pirâmides com atividades lúdicas.</p>
+<div class="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center text-xs font-bold text-slate-400 uppercase tracking-widest">
+<span class="" style="">Ensino Médio</span>
+<span class="" style="">Há 1 semana</span>
+</div>
+</div>
+<div class="glass-card rounded-xl p-6 hover:shadow-xl hover:-translate-y-1 transition-all group border-l-4 border-l-emerald-400">
+<div class="flex justify-between items-start mb-4">
+<div class="p-3 bg-emerald-100 rounded-lg text-emerald-500">
+<span class="material-symbols-outlined" style="">science</span>
+</div>
+<div class="flex gap-2">
+<button class="p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-primary transition-colors" title="Visualizar" style="">
+<span class="material-symbols-outlined" style="">visibility</span>
+</button>
+<button class="p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-primary transition-colors" title="Baixar PDF" style="">
+<span class="material-symbols-outlined" style="">picture_as_pdf</span>
+</button>
+</div>
+</div><div>
+<p class="text-sm font-bold uppercase tracking-widest text-slate-400 mb-4" style="">Atribuir Alunos</p>
+<div class="flex items-center gap-4 overflow-x-auto pb-4 no-scrollbar">
+<div class="flex-none flex flex-col items-center gap-2">
+<label class="relative cursor-pointer group" style="">
+<input checked="" class="peer sr-only" type="checkbox">
+<div class="size-14 rounded-full border-2 border-transparent peer-checked:border-primary transition-all p-0.5 overflow-hidden bg-slate-200">
+<img alt="Student" class="w-full h-full object-cover rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuADQRCkzzUDrFD1UGU5hv8cOCNq_VhR4R-YcfWzX3LHOpwKZywmjUeq4EJXvbz-XDnFlBQIJ6959ia_-PAOaQw8NI8xGu-4q4pDgGcGHVDacqYPJSJv3KrRgOYAEf_M--gXV3XLTP2DrauwTOgIHL-CV5yDVmv4f0W2-heteoBJBjYJt5V5id2wN7qpj5CywVohpeiAXudyTSv9VcYtbE9zEhQYYL0z9FFINnsmKVNR8MD0ZNrV1MNfEAWugaE1sgiyPLXOz-RTCBA" style="">
+</div>
+<div class="absolute -top-1 -right-1 size-5 bg-primary text-white rounded-full flex items-center justify-center opacity-0 peer-checked:opacity-100 transition-opacity">
+<span class="material-symbols-outlined !text-sm" style="">check</span>
+</div>
+</label>
+<span class="text-xs font-bold text-slate-600" style="">Todos</span>
+</div>
+<div class="flex-none flex flex-col items-center gap-2">
+<label class="relative cursor-pointer group" style="">
+<input class="peer sr-only" type="checkbox">
+<div class="size-14 rounded-full border-2 border-transparent peer-checked:border-primary transition-all p-0.5 overflow-hidden bg-slate-200">
+<div class="w-full h-full rounded-full bg-blue-100 flex items-center justify-center text-blue-500 font-bold text-lg" style="">LA</div>
+</div>
+<div class="absolute -top-1 -right-1 size-5 bg-primary text-white rounded-full flex items-center justify-center opacity-0 peer-checked:opacity-100 transition-opacity">
+<span class="material-symbols-outlined !text-sm" style="">check</span>
+</div>
+</label>
+<span class="text-xs font-bold text-slate-600" style="">Lucas A.</span>
+</div>
+<div class="flex-none flex flex-col items-center gap-2">
+<label class="relative cursor-pointer group" style="">
+<input class="peer sr-only" type="checkbox">
+<div class="size-14 rounded-full border-2 border-transparent peer-checked:border-primary transition-all p-0.5 overflow-hidden bg-slate-200">
+<div class="w-full h-full rounded-full bg-purple-100 flex items-center justify-center text-purple-500 font-bold text-lg" style="">MS</div>
+</div>
+<div class="absolute -top-1 -right-1 size-5 bg-primary text-white rounded-full flex items-center justify-center opacity-0 peer-checked:opacity-100 transition-opacity">
+<span class="material-symbols-outlined !text-sm" style="">check</span>
+</div>
+</label>
+<span class="text-xs font-bold text-slate-600" style="">Maria S.</span>
+</div>
+<div class="flex-none flex flex-col items-center gap-2">
+<label class="relative cursor-pointer group" style="">
+<input class="peer sr-only" type="checkbox">
+<div class="size-14 rounded-full border-2 border-transparent peer-checked:border-primary transition-all p-0.5 overflow-hidden bg-slate-200">
+<div class="w-full h-full rounded-full bg-emerald-100 flex items-center justify-center text-emerald-500 font-bold text-lg" style="">JP</div>
+</div>
+<div class="absolute -top-1 -right-1 size-5 bg-primary text-white rounded-full flex items-center justify-center opacity-0 peer-checked:opacity-100 transition-opacity">
+<span class="material-symbols-outlined !text-sm" style="">check</span>
+</div>
+</label>
+<span class="text-xs font-bold text-slate-600" style="">João P.</span>
+</div>
+<button class="flex-none size-14 rounded-full border-2 border-dashed border-slate-300 flex items-center justify-center text-slate-400 hover:border-primary hover:text-primary transition-colors" style="">
+<span class="material-symbols-outlined" style="">add</span>
+</button>
+</div>
+</div>
+<h3 class="text-lg font-bold text-slate-900 mb-1 group-hover:text-primary transition-colors" style="">Fotossíntese</h3>
+<p class="text-sm text-slate-500 line-clamp-2" style="">Processos biológicos da luz e clorofila com experiência prática de laboratório.</p>
+<div class="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center text-xs font-bold text-slate-400 uppercase tracking-widest">
+<span class="" style="">Ensino Fundamental I</span>
+<span class="" style="">Ontem</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<footer class="px-6 lg:px-20 py-8 bg-white/30 backdrop-blur-sm border-t border-primary/5 mt-auto">
+<div class="flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="text-slate-500 text-sm font-medium" style="">© 2024 incluPlan - Educação Inclusiva Potencializada por IA</p>
+<div class="flex gap-6 text-sm font-semibold text-slate-400">
+<a class="hover:text-primary" href="#" style="">Termos</a>
+<a class="hover:text-primary" href="#" style="">Privacidade</a>
+<a class="hover:text-primary" href="#" style="">Suporte</a>
+</div>
+</div>
+</footer>
+</div>
+</div>
+</body></html>

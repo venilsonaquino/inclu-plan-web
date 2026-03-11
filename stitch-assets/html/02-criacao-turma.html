@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>incluPlan - Adicionar Aluno</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ea3eb9",
+                        "secondary": "#a24af1",
+                        "background-light": "#f8f9fe",
+                        "background-dark": "#21111d",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .gradient-button {
+            background: linear-gradient(135deg, #ea40b8 0%, #a24af1 100%);
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen text-slate-900 dark:text-slate-100 font-display">
+<!-- Top Navigation Bar -->
+<header class="sticky top-0 z-50 w-full glass-card border-b border-slate-200/50 dark:border-slate-800/50 px-6 py-4">
+<div class="max-w-5xl mx-auto flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="bg-primary p-2 rounded-lg flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-2xl">auto_stories</span>
+</div>
+<h1 class="text-xl font-bold tracking-tight text-slate-900 dark:text-white">inclu<span class="text-primary">Plan</span></h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined text-slate-600 dark:text-slate-400">notifications</span>
+</button>
+<div class="h-10 w-10 rounded-full border-2 border-primary/20 overflow-hidden bg-slate-200" data-alt="User profile placeholder">
+<img alt="Avatar" class="w-full h-full object-cover" data-alt="Professional female teacher portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1bToc96-O5SW7OUn46fAzl8rrc81mzFT3GOByXNhcrlL9QILhpMKLEV1_aNUNgLOdh41EirPRjKYpGewIdnJjluDXj6lBEbpEa-813anPIbNxcDwUW67tjyVqFlmCNW72qQsz6PWK0JWS0gdMRu9tGeeJjcgA5VPGILhIXaJe8MRY2seBo9sXXMrNtWt1A2urZBHeyvDGTiNPfbhTsymrkB9ZCLjufyHEdp9pVPhzAVQBWnW4kxlVkIqd6fVrWLzpcz5rO3QhERo"/>
+</div>
+</div>
+</div>
+</header>
+<main class="max-w-3xl mx-auto px-4 py-8 space-y-6">
+<!-- Upper Section: Success Context -->
+<div class="glass-card rounded-2xl p-4 shadow-sm flex items-center gap-4 border-l-4 border-l-green-400">
+<div class="bg-green-100 dark:bg-green-900/30 p-2 rounded-full text-green-600 dark:text-green-400">
+<span class="material-symbols-outlined">check_circle</span>
+</div>
+<div>
+<p class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Turma Criada</p>
+<h2 class="text-lg font-bold text-slate-800 dark:text-slate-100">3º Ano A - Manhã</h2>
+</div>
+<div class="ml-auto text-slate-400">
+<span class="material-symbols-outlined">expand_more</span>
+</div>
+</div>
+<!-- Main Form Card -->
+<div class="glass-card rounded-xl p-8 shadow-xl">
+<div class="mb-8">
+<h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">Adicionar Aluno à Turma</h3>
+<p class="text-slate-500 dark:text-slate-400">Preencha os dados do estudante para personalizar o plano de ensino.</p>
+</div>
+<form class="space-y-8">
+<!-- Basic Info -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="flex flex-col gap-2">
+<label class="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1">Nome Completo</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">person</span>
+<input class="w-full pl-12 pr-4 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-slate-800 dark:text-slate-200" placeholder="Ex: Maria Oliveira Santos" type="text"/>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<label class="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1">Ano de Aprendizagem</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">school</span>
+<select class="w-full pl-12 pr-4 py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-slate-800 dark:text-slate-200 appearance-none">
+<option disabled="" selected="" value="">Selecione o nível</option>
+<option value="1">1º Ano Fundamental</option>
+<option value="2">2º Ano Fundamental</option>
+<option value="3">3º Ano Fundamental</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Neurodivergence Section -->
+<div class="pt-4">
+<label class="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1 mb-4 block">Condição ou Neurodivergência</label>
+<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+<!-- TEA -->
+<label class="cursor-pointer group">
+<input class="hidden peer" type="checkbox"/>
+<div class="flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 transition-all peer-checked:border-primary peer-checked:bg-primary/5 group-hover:border-primary/50">
+<span class="material-symbols-outlined text-3xl mb-2 text-slate-400 peer-checked:text-primary">extension</span>
+<span class="text-xs font-bold text-slate-600 dark:text-slate-400 peer-checked:text-primary">TEA</span>
+</div>
+</label>
+<!-- TDAH -->
+<label class="cursor-pointer group">
+<input class="hidden peer" type="checkbox"/>
+<div class="flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 transition-all peer-checked:border-primary peer-checked:bg-primary/5 group-hover:border-primary/50">
+<span class="material-symbols-outlined text-3xl mb-2 text-slate-400 peer-checked:text-primary">bolt</span>
+<span class="text-xs font-bold text-slate-600 dark:text-slate-400 peer-checked:text-primary">TDAH</span>
+</div>
+</label>
+<!-- TOD -->
+<label class="cursor-pointer group">
+<input class="hidden peer" type="checkbox"/>
+<div class="flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 transition-all peer-checked:border-primary peer-checked:bg-primary/5 group-hover:border-primary/50">
+<span class="material-symbols-outlined text-3xl mb-2 text-slate-400 peer-checked:text-primary">warning</span>
+<span class="text-xs font-bold text-slate-600 dark:text-slate-400 peer-checked:text-primary">TOD</span>
+</div>
+</label>
+<!-- Deficiência Intelectual -->
+<label class="cursor-pointer group">
+<input class="hidden peer" type="checkbox"/>
+<div class="flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 transition-all peer-checked:border-primary peer-checked:bg-primary/5 group-hover:border-primary/50 text-center">
+<span class="material-symbols-outlined text-3xl mb-2 text-slate-400 peer-checked:text-primary">psychology</span>
+<span class="text-xs font-bold text-slate-600 dark:text-slate-400 peer-checked:text-primary leading-tight">Deficiência <br/>Intelectual</span>
+</div>
+</label>
+<!-- Outros -->
+<label class="cursor-pointer group">
+<input class="hidden peer" type="checkbox"/>
+<div class="flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 transition-all peer-checked:border-primary peer-checked:bg-primary/5 group-hover:border-primary/50">
+<span class="material-symbols-outlined text-3xl mb-2 text-slate-400 peer-checked:text-primary">add_circle</span>
+<span class="text-xs font-bold text-slate-600 dark:text-slate-400 peer-checked:text-primary">Outros</span>
+</div>
+</label>
+</div>
+</div>
+<!-- Observations -->
+<div class="flex flex-col gap-2">
+<label class="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1">Observações Adicionais (Opcional)</label>
+<textarea class="w-full p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-slate-800 dark:text-slate-200 resize-none" placeholder="Informações relevantes sobre o comportamento ou necessidades específicas..." rows="3"></textarea>
+</div>
+<!-- CTA -->
+<div class="pt-6">
+<button class="gradient-button w-full py-5 rounded-2xl text-white font-bold text-lg shadow-xl shadow-primary/20 hover:shadow-primary/40 active:scale-[0.98] transition-all flex items-center justify-center gap-2" type="submit">
+<span class="material-symbols-outlined">person_add</span>
+                        Adicionar Aluno
+                    </button>
+<p class="text-center text-xs text-slate-400 mt-4">Você poderá editar esses dados a qualquer momento no perfil do aluno.</p>
+</div>
+</form>
+</div>
+<!-- Progress Footer (Mobile/Bottom sticky context) -->
+<div class="flex items-center justify-between px-2 pt-4 border-t border-slate-200 dark:border-slate-800">
+<button class="text-slate-500 font-medium flex items-center gap-1 hover:text-slate-700">
+<span class="material-symbols-outlined text-lg">arrow_back</span>
+                Voltar
+            </button>
+<div class="flex gap-2">
+<div class="h-1.5 w-6 rounded-full bg-primary/20"></div>
+<div class="h-1.5 w-12 rounded-full bg-primary"></div>
+<div class="h-1.5 w-6 rounded-full bg-slate-200 dark:bg-slate-800"></div>
+</div>
+<button class="text-primary font-bold hover:underline">Pular</button>
+</div>
+</main>
+</body></html>

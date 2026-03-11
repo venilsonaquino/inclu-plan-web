@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>incluPlan - Detalhes do Plano de Aula</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ea3eb9",
+                        "background-light": "#f8f6f7",
+                        "background-dark": "#21111d",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "1.5rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .gradient-bg {
+            background: radial-gradient(circle at top left, #fce4f4 0%, #f8f6f7 50%, #e0e7ff 100%);
+        }
+        .btn-primary-gradient {
+            background: linear-gradient(135deg, #ea3eb9 0%, #a855f7 100%);
+        }
+    </style>
+</head>
+<body class="font-display bg-background-light text-slate-900 min-h-screen gradient-bg">
+<div class="relative flex min-h-screen w-full flex-col">
+<!-- Top Navigation -->
+<header class="sticky top-0 z-50 px-6 py-4 glass-card border-b-0 mx-6 mt-4 rounded-xl flex items-center justify-between">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined text-3xl font-bold">all_inclusive</span>
+<h2 class="text-slate-900 text-xl font-extrabold tracking-tight">incluPlan</h2>
+</div>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-slate-600 hover:text-primary text-sm font-semibold transition-colors" href="#">Dashboard</a>
+<a class="text-primary text-sm font-semibold border-b-2 border-primary pb-1" href="#">Lesson Plans</a>
+<a class="text-slate-600 hover:text-primary text-sm font-semibold transition-colors" href="#">Students</a>
+<a class="text-slate-600 hover:text-primary text-sm font-semibold transition-colors" href="#">Reports</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden sm:flex items-center bg-white/50 rounded-full px-4 py-2 border border-slate-200">
+<span class="material-symbols-outlined text-slate-400 text-sm">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-48 placeholder:text-slate-400" placeholder="Search plans..." type="text"/>
+</div>
+<div class="size-10 rounded-full bg-primary/10 border-2 border-white flex items-center justify-center overflow-hidden">
+<img alt="User Profile" class="size-full object-cover" data-alt="Teacher profile picture avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAPWeBFBisfFsPXCGoZMCBX2bzUQUWePHlo9gGVoyW80uIFdk4iYFSQFSg-Wpd3ooKZynDWCawe31DW4ZtTCSsZSLkS3teTnhFdpWl8wZbyMe8jaRii6u840QL017gkJxhwlpMBN_NShPLanPEJH4mOAui1ThgQE2s2j-AwtD48d6R0fdg5Mcbx2wj9yCmIdLMXPH2rMcqlyNUUFa98nx5Eweruq0bkyzdIMDhkMfjvRU8cBYrQtvjXa2pZVyVB6rWQzWkJ-AiNczI"/>
+</div>
+</div>
+</header>
+<main class="flex-1 px-6 py-8 flex flex-col lg:flex-row gap-8 max-w-7xl mx-auto w-full">
+<!-- Main Content Area -->
+<div class="flex-1 space-y-6">
+<!-- Breadcrumbs -->
+<div class="flex items-center gap-2 text-sm text-slate-500 font-medium">
+<a class="hover:text-primary" href="#">Lesson Plans</a>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<span class="text-slate-900">Cores e Sentimentos</span>
+</div>
+<!-- Hero Section Card -->
+<div class="glass-card p-8 rounded-xl shadow-sm overflow-hidden relative">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+<div class="flex flex-wrap justify-between items-start gap-4">
+<div>
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider mb-4">
+<span class="material-symbols-outlined text-sm">palette</span> Art Education (Artes)
+                            </div>
+<h1 class="text-4xl font-black text-slate-900 leading-tight mb-2">Cores e Sentimentos</h1>
+<div class="flex items-center gap-4 text-slate-500 font-medium">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">schedule</span> 60 minutes</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">book</span> BNCC: EF15AR02</span>
+</div>
+</div>
+<button class="btn-primary-gradient text-white px-6 py-3 rounded-full font-bold text-sm shadow-lg shadow-primary/25 hover:opacity-90 transition-opacity flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">edit</span> Edit Plan
+                        </button>
+</div>
+<div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="col-span-1 md:col-span-2 space-y-6">
+<section>
+<h3 class="text-lg font-bold text-slate-900 flex items-center gap-2 mb-3">
+<span class="material-symbols-outlined text-primary">target</span> Objetivo
+                                </h3>
+<p class="text-slate-600 leading-relaxed bg-white/40 p-4 rounded-lg border border-white/50">
+                                    Identificar a relação entre cores e emoções através da expressão artística e exploração sensorial.
+                                </p>
+</section>
+<section>
+<h3 class="text-lg font-bold text-slate-900 flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-primary">format_list_numbered</span> Lesson Steps
+                                </h3>
+<div class="space-y-4">
+<div class="flex gap-4 p-4 rounded-lg hover:bg-white/60 transition-colors border border-transparent hover:border-white/50">
+<span class="flex-shrink-0 size-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm">1</span>
+<div>
+<p class="font-bold text-slate-900">Acolhimento</p>
+<p class="text-slate-600 text-sm">Com música suave e luzes coloridas para ambientação sensorial.</p>
+</div>
+</div>
+<div class="flex gap-4 p-4 rounded-lg hover:bg-white/60 transition-colors border border-transparent hover:border-white/50">
+<span class="flex-shrink-0 size-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm">2</span>
+<div>
+<p class="font-bold text-slate-900">Apresentação da 'Caixa das Cores'</p>
+<p class="text-slate-600 text-sm">Exploração de objetos com diferentes texturas e cores primárias.</p>
+</div>
+</div>
+<div class="flex gap-4 p-4 rounded-lg hover:bg-white/60 transition-colors border border-transparent hover:border-white/50">
+<span class="flex-shrink-0 size-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm">3</span>
+<div>
+<p class="font-bold text-slate-900">Atividade Prática</p>
+<p class="text-slate-600 text-sm">Pintura livre com mãos ou pincéis, escolhendo cores que representam o 'sentimento do dia'.</p>
+</div>
+</div>
+<div class="flex gap-4 p-4 rounded-lg hover:bg-white/60 transition-colors border border-transparent hover:border-white/50">
+<span class="flex-shrink-0 size-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm">4</span>
+<div>
+<p class="font-bold text-slate-900">Roda de Conversa</p>
+<p class="text-slate-600 text-sm">Momento de compartilhamento e validação das criações e sentimentos.</p>
+</div>
+</div>
+</div>
+</section>
+</div>
+<div class="col-span-1 space-y-6">
+<section class="bg-primary/5 p-6 rounded-xl border border-primary/10">
+<h3 class="text-sm font-black text-primary uppercase tracking-widest mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">extension</span> UDL Strategies
+                                </h3>
+<div class="space-y-4">
+<div>
+<p class="text-xs font-bold text-slate-400 uppercase mb-1">Representation</p>
+<p class="text-sm text-slate-700">Visual and tactile materials, color-coded emotion cards.</p>
+</div>
+<div class="h-px bg-primary/10"></div>
+<div>
+<p class="text-xs font-bold text-slate-400 uppercase mb-1">Action/Expression</p>
+<p class="text-sm text-slate-700">Choice of painting tools, oral or gestural expression.</p>
+</div>
+<div class="h-px bg-primary/10"></div>
+<div>
+<p class="text-xs font-bold text-slate-400 uppercase mb-1">Engagement</p>
+<p class="text-sm text-slate-700">Connecting colors to personal feelings, collaborative sharing.</p>
+</div>
+</div>
+</section>
+<div class="rounded-xl overflow-hidden shadow-sm border border-white/50">
+<img alt="Art materials" class="w-full h-40 object-cover" data-alt="Close-up of colorful paints and brushes" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCPSOnZ6mGBN3XxW035O4D4Mc7XEMpC7oIqr_8rjpUSYyrlWWQIJdXB9JTeZAo660Ueb-nqy0kX54-vUxvfvsFT-hQbsSGOWU4uMOnfJRmtxySxa5fTRS2L9fdLDbKNU5IduR8KdMN6yZmqAMMIzoWXb6QIgkQIdavJGLmSw_BplOCF0drWXqQSeXFZWzCRxwHJc9KQSxyo-O3mTfeZ6xjzEq3aP5CXKr1ogee8URCDAJeyOSjbbX5bz1PBcnINc0wcAFO9VTw8naE"/>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Sidebar (Adaptations) -->
+<aside class="w-full lg:w-80 flex flex-col gap-6">
+<div class="glass-card p-6 rounded-xl shadow-sm border border-white/40">
+<h2 class="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">diversity_3</span> Adaptações
+                    </h2>
+<div class="space-y-6">
+<!-- Student Profile 1 -->
+<div class="group">
+<div class="flex items-center gap-3 mb-3">
+<div class="size-10 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden border-2 border-white group-hover:scale-105 transition-transform">
+<img alt="Joana" data-alt="Profile avatar of a young student named Joana" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDv9HA6OBaB0OvYjzWTQ64WHn8hMO-BG5jIWtToAGER25NmrZZWJ7CNTt2Gnnuf5I3lPUi6R8odWkLMuH3URA4kGJNAICt4JhP6FR_Syt5OrKxzr5e66DB94D4PwGRfy0Kp9wgi0Rkx_Tdz67S4lpDzbttsPIxfOvCJJo16-lwjegNzi18fL-7FwMOZr0dg4WBYPppYVrXvgACecmo-zztGYuY4w-6evZFIZvfrGBdeD9UEchfHqMPjRd4Q8nLcLcUqKDUMCo_JtE8"/>
+</div>
+<div>
+<p class="font-bold text-slate-900 text-sm">Joana (TEA)</p>
+<p class="text-xs text-slate-500">Student Profile</p>
+</div>
+</div>
+<div class="bg-white/40 border border-white/60 p-4 rounded-lg space-y-2">
+<div class="flex items-start gap-2 text-sm text-slate-700">
+<span class="material-symbols-outlined text-primary text-xs mt-1">check_circle</span>
+<span>Use of high-contrast cards</span>
+</div>
+<div class="flex items-start gap-2 text-sm text-slate-700">
+<span class="material-symbols-outlined text-primary text-xs mt-1">check_circle</span>
+<span>Quiet corner if overwhelmed</span>
+</div>
+</div>
+</div>
+<!-- Student Profile 2 -->
+<div class="group">
+<div class="flex items-center gap-3 mb-3">
+<div class="size-10 rounded-full bg-orange-100 flex items-center justify-center overflow-hidden border-2 border-white group-hover:scale-105 transition-transform">
+<img alt="Pedro" data-alt="Profile avatar of a young student named Pedro" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA-STnVtkML3TC63kOHOLSNq5nfCQyd3WYO4lysso9Y7Ezj6lmuvLumh6p9MVw9muB0bPIHcOTsdYeMtG6FMMkAnyF6Q3XP6eDVFxI6h9nH5ePudldpn1CX6iL2Rdxj-ORyg8LAiLXUKKqfth1JZHxBwxWgiQqtA1wykzSZ5O7mCY4Y2iMbDosZ_EgTjTlTezsIv8qm_JCtsWXsyzhXgTmos3FFwWL7u-K6sXcgk2w5E_2lGsKS15sfOeExOwKiYs3E74rV6zGFxqM"/>
+</div>
+<div>
+<p class="font-bold text-slate-900 text-sm">Pedro (TEA/TOD)</p>
+<p class="text-xs text-slate-500">Student Profile</p>
+</div>
+</div>
+<div class="bg-white/40 border border-white/60 p-4 rounded-lg space-y-2">
+<div class="flex items-start gap-2 text-sm text-slate-700">
+<span class="material-symbols-outlined text-primary text-xs mt-1">check_circle</span>
+<span>Task fragmentation</span>
+</div>
+<div class="flex items-start gap-2 text-sm text-slate-700">
+<span class="material-symbols-outlined text-primary text-xs mt-1">check_circle</span>
+<span>Visual timer for tasks</span>
+</div>
+<div class="flex items-start gap-2 text-sm text-slate-700">
+<span class="material-symbols-outlined text-primary text-xs mt-1">check_circle</span>
+<span>Immediate positive feedback</span>
+</div>
+</div>
+</div>
+<!-- Tips Section -->
+<div class="bg-gradient-to-br from-primary/20 to-purple-100 p-5 rounded-xl border border-primary/20 relative overflow-hidden">
+<span class="material-symbols-outlined absolute -right-2 -bottom-2 text-6xl text-primary/10">lightbulb</span>
+<h4 class="text-primary font-bold text-sm mb-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">tips_and_updates</span> Dica do incluPlan
+                            </h4>
+<p class="text-slate-800 text-sm leading-snug relative z-10">
+                                Considere a regulação sensorial durante a pintura. Alunos que evitam texturas molhadas podem usar esponjas em cabos ou luvas descartáveis.
+                            </p>
+</div>
+</div>
+</div>
+<!-- Action Card -->
+<div class="glass-card p-6 rounded-xl text-center space-y-4">
+<p class="text-sm font-medium text-slate-600">Need a printed version for class?</p>
+<button class="w-full py-3 border-2 border-primary text-primary rounded-full font-bold text-sm hover:bg-primary/5 transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">print</span> Print Lesson PDF
+                    </button>
+</div>
+</aside>
+</main>
+</div>
+</body></html>
