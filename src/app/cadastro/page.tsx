@@ -4,13 +4,16 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
+    name: "",
     email: "",
     password: "",
+    confirmPassword: "",
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -21,34 +24,35 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    if (formData.password !== formData.confirmPassword) {
+      setError("As senhas não coincidem.");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      const res = await fetch("/api/proxy/auth/login", {
+      const res = await fetch("/api/proxy/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+        }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "E-mail ou senha incorretos.");
+        throw new Error(data.error || "Erro ao realizar cadastro.");
       }
 
-      // After successful login, check if user has any classes
-      const classesRes = await fetch("/api/proxy/school-classes");
-      const classesData = await classesRes.json();
-      
-      if (Array.isArray(classesData) && classesData.length === 0) {
-        // Redireciona para o formulário de criação se não houver turmas
-        router.push("/turmas/criar");
-      } else {
-        // Sucesso - Redireciona para o dashboard se houver turmas
-        router.push("/turmas");
-      }
+      // Success - Redirect to login
+      router.push("/login?registered=true");
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -57,15 +61,15 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="font-display bg-background-light min-h-screen flex items-center justify-center relative overflow-hidden">
+    <main className="font-display bg-background-light min-h-screen flex items-center justify-center relative overflow-hidden py-12">
       {/* Organic Gradient Background */}
       <div className="absolute inset-0 organic-gradient pointer-events-none" />
 
       <div className="relative z-10 w-full max-w-md px-6">
-        {/* Login Card */}
+        {/* Registration Card */}
         <div className="glass-card-light rounded-xl p-8 shadow-2xl flex flex-col items-center">
           {/* Logo */}
-          <div className="mb-10 flex flex-col items-center gap-3">
+          <div className="mb-8 flex flex-col items-center gap-3">
             <div className="size-12 text-primary">
               <svg
                 fill="none"
@@ -81,21 +85,36 @@ export default function LoginPage() {
             <h1 className="text-3xl font-bold tracking-tight text-slate-900">
               incluPlan
             </h1>
-            <p className="text-sm text-slate-600 font-medium">
-              Bem-vindo de volta
-            </p>
+            <p className="text-sm text-slate-600 font-medium">Crie sua conta</p>
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="w-full space-y-6">
+          <form onSubmit={handleSubmit} className="w-full space-y-5">
             {error && (
               <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm text-center font-medium border border-red-100">
                 {error}
               </div>
             )}
 
+            {/* Name */}
+            <div className="space-y-1.5 flex flex-col gap-[2px]">
+              <label className="block text-sm font-semibold text-slate-700 ml-1">
+                Nome Completo
+              </label>
+              <input
+                id="name"
+                name="name"
+                type="text"
+                required
+                value={formData.name}
+                onChange={handleChange}
+                className="w-full h-14 bg-white/60 border border-white/40 rounded-xl px-5 py-3 text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all shadow-sm"
+                placeholder="Digite seu nome completo"
+              />
+            </div>
+
             {/* Email */}
-            <div className="space-y-2">
+            <div className="space-y-1.5 flex flex-col gap-[2px]">
               <label className="block text-sm font-semibold text-slate-700 ml-1">
                 E-mail
               </label>
@@ -104,7 +123,6 @@ export default function LoginPage() {
                 name="email"
                 type="email"
                 required
-                autoComplete="email"
                 value={formData.email}
                 onChange={handleChange}
                 className="w-full h-14 bg-white/60 border border-white/40 rounded-xl px-5 py-3 text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all shadow-sm"
@@ -113,29 +131,20 @@ export default function LoginPage() {
             </div>
 
             {/* Password */}
-            <div className="space-y-2">
-              <div className="flex justify-between items-center ml-1">
-                <label className="block text-sm font-semibold text-slate-700">
-                  Senha
-                </label>
-                <a
-                  className="text-xs font-medium text-primary hover:underline"
-                  href="#"
-                >
-                  Esqueceu a senha?
-                </a>
-              </div>
+            <div className="space-y-1.5 flex flex-col gap-[2px]">
+              <label className="block text-sm font-semibold text-slate-700 ml-1">
+                Senha
+              </label>
               <div className="relative flex items-center">
                 <input
                   id="password"
                   name="password"
                   type={showPassword ? "text" : "password"}
                   required
-                  autoComplete="current-password"
                   value={formData.password}
                   onChange={handleChange}
                   className="w-full h-14 bg-white/60 border border-white/40 rounded-xl px-5 py-3 pr-12 text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all shadow-sm"
-                  placeholder="Digite sua senha"
+                  placeholder="Crie uma senha forte"
                 />
                 <button
                   className="absolute right-4 text-slate-400 hover:text-slate-600 transition-colors"
@@ -144,6 +153,34 @@ export default function LoginPage() {
                 >
                   <span className="material-symbols-outlined">
                     {showPassword ? "visibility_off" : "visibility"}
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            {/* Confirm Password */}
+            <div className="space-y-1.5 flex flex-col gap-[2px]">
+              <label className="block text-sm font-semibold text-slate-700 ml-1">
+                Confirmar Senha
+              </label>
+              <div className="relative flex items-center">
+                <input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  required
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  className="w-full h-14 bg-white/60 border border-white/40 rounded-xl px-5 py-3 pr-12 text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all shadow-sm"
+                  placeholder="Repita a sua senha"
+                />
+                <button
+                  className="absolute right-4 text-slate-400 hover:text-slate-600 transition-colors"
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  <span className="material-symbols-outlined">
+                    {showConfirmPassword ? "visibility_off" : "visibility"}
                   </span>
                 </button>
               </div>
@@ -162,25 +199,25 @@ export default function LoginPage() {
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
                 ) : (
-                  "Entrar"
+                  "Cadastrar"
                 )}
               </button>
             </div>
           </form>
 
-          {/* Register Link */}
+          {/* Login Link */}
           <div className="mt-8 text-center">
             <p className="text-sm text-slate-600">
-              Ainda não tem uma conta?{" "}
-              <Link href="/cadastro" className="font-bold text-primary hover:underline">
-                Cadastre-se
+              Já tem uma conta?{" "}
+              <Link href="/login" className="font-bold text-primary hover:underline">
+                Fazer login
               </Link>
             </p>
           </div>
         </div>
 
         {/* Footer Links */}
-        <div className="mt-8 flex justify-center gap-6 text-slate-400 text-xs font-medium">
+        <div className="mt-8 flex justify-center gap-6 text-slate-400 text-xs font-medium pb-8">
           <a className="hover:text-primary transition-colors" href="#">
             Termos de Uso
           </a>

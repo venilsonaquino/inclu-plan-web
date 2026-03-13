@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3333/api";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
 
 /**
  * Interface padronizada para erros na API BFF
@@ -16,15 +16,22 @@ export interface ApiProxyError {
  */
 export async function serverApiFetch<T>(
   endpoint: string,
-  options?: RequestInit
+  options?: RequestInit,
+  token?: string
 ): Promise<NextResponse<T | ApiProxyError | any[]>> {
   try {
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      ...(options?.headers as Record<string, string> || {}),
+    };
+
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
     const res = await fetch(`${API_BASE_URL}${endpoint}`, {
       ...options,
-      headers: {
-        "Content-Type": "application/json",
-        ...(options?.headers || {}),
-      },
+      headers,
     });
 
     // Se o backend retornou Not Found ou Server Error

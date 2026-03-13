@@ -1,6 +1,8 @@
 import { serverApiFetch } from "@/lib/server-api";
-import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 
 export async function GET() {
-  return serverApiFetch('/grades', { method: 'GET' });
+  const cookieStore = await cookies();
+  const token = cookieStore.get("auth_token")?.value;
+  return serverApiFetch('/grades', { method: 'GET' }, token);
 }
