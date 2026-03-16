@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -63,12 +63,60 @@ const lessonPlans = [
 ];
 
 export default function GeradorPlanosPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Carregando gerador...</div>}>
+      <GeradorPlanosContent />
+    </Suspense>
+  );
+}
+
+function GeradorPlanosContent() {
+  const searchParams = useSearchParams();
+  const turmaId = searchParams.get("turmaId");
+  const turmaNome = searchParams.get("turmaNome");
+
   const [activeSubject, setActiveSubject] = useState("Português");
   const [studentsList, setStudentsList] = useState(initialStudents);
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isCreatingNew, setIsCreatingNew] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    if (turmaId) {
+      fetchStudents(turmaId);
+    }
+  }, [turmaId]);
+
+  const fetchStudents = async (id: string) => {
+    try {
+      const res = await fetch(`/api/proxy/school-classes/${id}`);
+      if (!res.ok) throw new Error("Erro ao buscar alunos");
+      const data = await res.json();
+      
+      if (Array.isArray(data.students)) {
+        const mappedStudents = data.students.map((s: any) => {
+          const initials = s.name
+            .split(" ")
+            .map((n: string) => n[0])
+            .slice(0, 2)
+            .join("")
+            .toUpperCase();
+          
+          return {
+            id: s.id,
+            initials: initials,
+            name: s.name,
+            color: "bg-blue-100 text-blue-500",
+            selected: false
+          };
+        });
+        setStudentsList(mappedStudents);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   // Generator Form State
   const [theme, setTheme] = useState("");
@@ -174,9 +222,18 @@ export default function GeradorPlanosPage() {
             <h1 className="text-4xl font-black tracking-tight text-slate-900">
               Criar Novo Plano de Aula
             </h1>
-            <p className="text-slate-500 font-medium">
-              Preencha os dados abaixo para gerar um plano personalizado com IA.
-            </p>
+            {turmaNome ? (
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-slate-500 font-medium">Gerando plano para a turma:</span>
+                <span className="bg-primary/10 text-primary px-3 py-1 rounded-full font-bold text-sm">
+                  {turmaNome}
+                </span>
+              </div>
+            ) : (
+              <p className="text-slate-500 font-medium">
+                Preencha os dados abaixo para gerar um plano personalizado com IA.
+              </p>
+            )}
           </div>
 
           <div className="glass-card rounded-xl p-8 shadow-sm space-y-8">
@@ -237,20 +294,20 @@ export default function GeradorPlanosPage() {
                         setStudentsList(prev => prev.map(s => ({ ...s, selected: !allSelected })));
                       }}
                     />
-                    <div className="size-14 rounded-full border-2 border-transparent peer-checked:border-primary transition-all p-0.5 overflow-hidden bg-slate-200">
+                    <div className="size-14 rounded-full border-2 border-transparent peer-checked:border-fuchsia-500 transition-all p-0.5 overflow-hidden bg-slate-200">
                       <div className="w-full h-full rounded-full bg-cover bg-center flex items-center justify-center font-bold text-lg">
                         👥
                       </div>
                     </div>
-                    <div className="absolute -top-1 -right-1 size-5 bg-primary text-white rounded-full flex items-center justify-center opacity-0 peer-checked:opacity-100 transition-opacity">
+                    <div className="absolute -top-1 -right-1 size-5 bg-fuchsia-500 text-white rounded-full flex items-center justify-center opacity-0 peer-checked:opacity-100 transition-opacity">
                       <span className="material-symbols-outlined !text-sm">check</span>
                     </div>
                   </label>
                   <span className="text-xs font-bold text-slate-600">Todos</span>
                 </div>
 
-                {/* Selected Students Only */}
-                {selectedStudents.map((student) => (
+                {/* List all students */}
+                {studentsList.map((student) => (
                   <div
                     key={student.id}
                     className="flex-none flex flex-col items-center gap-2"
@@ -262,14 +319,14 @@ export default function GeradorPlanosPage() {
                         checked={student.selected}
                         onChange={() => handleToggleStudent(student.id)}
                       />
-                      <div className="size-14 rounded-full border-2 border-transparent peer-checked:border-primary transition-all p-0.5 overflow-hidden bg-slate-200">
+                      <div className="size-14 rounded-full border-2 border-transparent peer-checked:border-fuchsia-500 transition-all p-0.5 overflow-hidden bg-slate-200">
                         <div
                           className={`w-full h-full rounded-full ${student.color} flex items-center justify-center font-bold text-lg`}
                         >
                           {student.initials}
                         </div>
                       </div>
-                      <div className="absolute -top-1 -right-1 size-5 bg-primary text-white rounded-full flex items-center justify-center opacity-0 peer-checked:opacity-100 transition-opacity">
+                      <div className="absolute -top-1 -right-1 size-5 bg-fuchsia-500 text-white rounded-full flex items-center justify-center opacity-0 peer-checked:opacity-100 transition-opacity">
                         <span className="material-symbols-outlined !text-sm">
                           check
                         </span>
@@ -281,13 +338,6 @@ export default function GeradorPlanosPage() {
                   </div>
                 ))}
 
-                {/* Add/Manage Button */}
-                <button 
-                  onClick={() => setIsStudentModalOpen(true)}
-                  className="flex-none size-14 rounded-full border-2 border-dashed border-slate-300 flex items-center justify-center text-slate-400 hover:border-primary hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20"
-                >
-                  <span className="material-symbols-outlined">add</span>
-                </button>
               </div>
             </div>
 
@@ -404,169 +454,7 @@ export default function GeradorPlanosPage() {
         </section>
       </main>
 
-      {/* 
-        Inline Student Management Modal 
-        Provides "0% cognitive effort" by allowing student addition 
-        without breaking the lesson plan flow.
-      */}
-      {isStudentModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-          <div 
-            className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity"
-            onClick={() => setIsStudentModalOpen(false)}
-          />
-          
-          <div className="relative w-full max-w-md bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 border-b border-slate-100">
-              <h3 className="text-xl font-bold text-slate-900">
-                {isCreatingNew ? "Cadastrar Novo Aluno" : "Alunos na Turma"}
-              </h3>
-              <button 
-                onClick={() => {
-                  if (isCreatingNew) {
-                    setIsCreatingNew(false);
-                  } else {
-                    setIsStudentModalOpen(false);
-                  }
-                }}
-                className="p-2 -mr-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-full transition-colors"
-              >
-                <span className="material-symbols-outlined">
-                  {isCreatingNew ? "arrow_back" : "close"}
-                </span>
-              </button>
-            </div>
 
-            <div className="p-6">
-              {!isCreatingNew ? (
-                /* --- LIST & SELECT MODE --- */
-                <div className="space-y-6">
-                  {/* Search */}
-                  <div className="relative group">
-                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/60 group-focus-within:text-primary">
-                      search
-                    </span>
-                    <input
-                      className="w-full pl-12 pr-4 py-3 rounded-full border-none shadow-sm focus:ring-2 focus:ring-primary/20 bg-slate-50 text-slate-900 placeholder:text-slate-400 transition-all font-medium"
-                      placeholder="Buscar aluno da turma..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      type="text"
-                    />
-                  </div>
-
-                  {/* Student List */}
-                  <div className="max-h-60 overflow-y-auto no-scrollbar space-y-2">
-                    {filteredStudents.length > 0 ? (
-                      filteredStudents.map((student) => (
-                        <label 
-                          key={student.id} 
-                          className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all border-2 ${student.selected ? 'border-primary bg-primary/5' : 'border-transparent hover:bg-slate-50'}`}
-                        >
-                          <input
-                            type="checkbox"
-                            className="w-5 h-5 rounded-md border-slate-300 text-primary focus:ring-primary/20 cursor-pointer"
-                            checked={student.selected}
-                            onChange={() => handleToggleStudent(student.id)}
-                          />
-                          <div className={`size-10 rounded-full ${student.color} flex items-center justify-center font-bold text-sm shrink-0`}>
-                            {student.initials}
-                          </div>
-                          <span className={`text-sm font-medium ${student.selected ? 'text-primary font-bold' : 'text-slate-700'}`}>
-                            {student.name}
-                          </span>
-                        </label>
-                      ))
-                    ) : (
-                      <p className="text-center text-sm font-bold text-slate-400 py-4">Nenhum aluno encontrado e selecionado.</p>
-                    )}
-                  </div>
-
-                  {/* Add New Action */}
-                  <button 
-                    onClick={() => setIsCreatingNew(true)}
-                    className="w-full flex items-center justify-center gap-2 p-4 mt-2 border-2 border-dashed border-primary/30 rounded-xl text-primary font-bold hover:bg-primary/5 hover:border-primary transition-all"
-                  >
-                    <span className="material-symbols-outlined">person_add</span>
-                    Cadastrar Aluno Inédito
-                  </button>
-                </div>
-              ) : (
-                /* --- CREATE MODE --- */
-                <div className="space-y-6">
-                  <div className="space-y-4">
-                    <div className="flex flex-col gap-2">
-                       <label className="text-sm font-semibold text-slate-700 ml-1">
-                        Nome do Aluno
-                      </label>
-                      <div className="relative">
-                        <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                          person
-                        </span>
-                        <input
-                          value={newStudentName}
-                          onChange={(e) => setNewStudentName(e.target.value)}
-                          className="w-full pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-slate-800 font-medium"
-                          placeholder="Nome compl. do aluno"
-                          autoFocus
-                          type="text"
-                        />
-                      </div>
-                    </div>
-                    
-                    <Select
-                      icon="school"
-                      label="Ano de Aprendizagem"
-                      placeholder="Selecione o ano"
-                      value={newStudentLevel}
-                      onChange={setNewStudentLevel}
-                      options={[
-                        { value: "1º Ano Fundamental", label: "1º Ano Fundamental" },
-                        { value: "2º Ano Fundamental", label: "2º Ano Fundamental" },
-                        { value: "3º Ano Fundamental", label: "3º Ano Fundamental" }
-                      ]}
-                    />
-
-                    {/* Quick Conditions Mock */}
-                    <div>
-                      <p className="text-sm font-semibold text-slate-700 ml-1 mb-2 mt-2">Condição Principal</p>
-                      <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2">
-                        {["TDAH", "TEA", "Def. Intelectual", "TOD"].map(cond => (
-                          <label key={cond} className="shrink-0 cursor-pointer">
-                            <input type="radio" name="condition" className="hidden peer" />
-                            <div className="px-4 py-3 rounded-xl border-2 border-slate-100 peer-checked:border-primary peer-checked:bg-primary/10 text-sm font-bold text-slate-500 peer-checked:text-primary transition-all hover:bg-slate-50">
-                              {cond}
-                            </div>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  <Button 
-                    variant="primary"
-                    className="w-full flex justify-center py-4" 
-                    size="lg" 
-                    onClick={handleSaveNewStudent}
-                    disabled={!newStudentName}
-                  >
-                    Salvar Aluno na Turma
-                  </Button>
-                </div>
-              )}
-            </div>
-            
-            {!isCreatingNew && (
-              <div className="p-6 pt-0">
-                <Button variant="primary" className="w-full flex justify-center py-4 text-base" size="lg" onClick={() => setIsStudentModalOpen(false)}>
-                  Feito
-                </Button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
 
       <Footer />
     </div>
