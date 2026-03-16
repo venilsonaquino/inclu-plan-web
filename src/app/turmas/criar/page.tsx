@@ -403,7 +403,7 @@ export default function CriacaoTurmaPage() {
                   <button 
                     onClick={() => {
                       const currentTurmaObj = turmas.find(t => (t.name || t.nome) === selectedTurma);
-                      window.location.href = `/planos/criar?turmaId=${currentTurmaObj?.id || ''}&turmaNome=${encodeURIComponent(selectedTurma)}`;
+                      window.location.href = `/planos/criar/${currentTurmaObj?.id || ''}?turmaNome=${encodeURIComponent(selectedTurma)}`;
                     }}
                     className="flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-widest hover:bg-primary/5 px-4 py-2 rounded-full transition-all"
                   >
@@ -584,7 +584,7 @@ export default function CriacaoTurmaPage() {
                   className="px-8 py-4 shadow-xl shadow-primary/20 gap-2 group whitespace-nowrap"
                   onClick={() => {
                     const currentTurmaObj = turmas.find(t => (t.name || t.nome) === selectedTurma);
-                    window.location.href = `/planos/criar?turmaId=${currentTurmaObj?.id || ''}&turmaNome=${encodeURIComponent(selectedTurma)}`;
+                    window.location.href = `/planos/criar/${currentTurmaObj?.id || ''}?turmaNome=${encodeURIComponent(selectedTurma)}`;
                   }}
                 >
                   <span className="material-symbols-outlined group-hover:rotate-12 transition-transform">auto_awesome</span>

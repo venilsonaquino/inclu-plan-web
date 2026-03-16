@@ -109,7 +109,7 @@ export default function BibliotecaPlanosPage() {
                   ]}
                 />
                 <Link
-                  href="/planos/criar"
+                  href="/turmas/criar"
                   className="bg-primary text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-primary/30 hover:scale-[1.02] transition-transform"
                 >
                   <span className="material-symbols-outlined">add</span>
@@ -156,7 +156,7 @@ export default function BibliotecaPlanosPage() {
 
               {/* Add New */}
               <Link
-                href="/planos/criar"
+                href="/turmas/criar"
                 className="border-2 border-dashed border-primary/20 rounded-[2rem] p-6 flex flex-col items-center justify-center gap-4 hover:border-primary/40 transition-all cursor-pointer group"
               >
                 <div className="size-14 rounded-full bg-white glass-card flex items-center justify-center text-primary group-hover:scale-110 transition-transform shadow-sm">

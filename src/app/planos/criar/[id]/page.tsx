@@ -1,12 +1,10 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, Suspense, use } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import Button from "@/components/ui/Button";
-import Select from "@/components/ui/Select";
 
 const subjects = [
   { icon: "menu_book", label: "Português" },
@@ -62,17 +60,19 @@ const lessonPlans = [
   },
 ];
 
-export default function GeradorPlanosPage() {
+export default function GeradorPlanosPage({ params }: { params: Promise<{ id: string }> }) {
+  const unwrappedParams = use(params);
+
   return (
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Carregando gerador...</div>}>
-      <GeradorPlanosContent />
+      <GeradorPlanosContent turmaId={unwrappedParams.id} />
     </Suspense>
   );
 }
 
-function GeradorPlanosContent() {
+function GeradorPlanosContent({ turmaId: propTurmaId }: { turmaId?: string }) {
   const searchParams = useSearchParams();
-  const turmaId = searchParams.get("turmaId");
+  const turmaId = propTurmaId || searchParams.get("turmaId");
   const turmaNome = searchParams.get("turmaNome");
 
   const [activeSubject, setActiveSubject] = useState("Português");
@@ -93,7 +93,7 @@ function GeradorPlanosContent() {
       const res = await fetch(`/api/proxy/school-classes/${id}`);
       if (!res.ok) throw new Error("Erro ao buscar alunos");
       const data = await res.json();
-      
+
       if (Array.isArray(data.students)) {
         const mappedStudents = data.students.map((s: any) => {
           const initials = s.name
@@ -102,7 +102,7 @@ function GeradorPlanosContent() {
             .slice(0, 2)
             .join("")
             .toUpperCase();
-          
+
           return {
             id: s.id,
             initials: initials,
@@ -195,14 +195,14 @@ function GeradorPlanosContent() {
       });
 
       if (!res.ok) throw new Error("Erro ao gerar plano");
-      
+
       const generatedPlan = await res.json();
       console.log("Plan Generated", generatedPlan);
-      
+
       alert("Plano gerado com sucesso! (Navegando para o detalhe simulado...)");
       router.push("/planos/cores-e-sentimentos"); // Fake navigation to the pre-built details view for now
-      
-    } catch(err) {
+
+    } catch (err) {
       console.error(err);
       alert("Houve um erro de conexão com o AI Backend. Simulação prosseguindo.");
       router.push("/planos/cores-e-sentimentos");
@@ -253,20 +253,18 @@ function GeradorPlanosContent() {
                       data-active={isActive ? "true" : "false"}
                     >
                       <div
-                        className={`size-12 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform mb-2 ${
-                          isActive
+                        className={`size-12 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform mb-2 ${isActive
                             ? "bg-primary/10 text-primary"
                             : "bg-slate-100 text-slate-400"
-                        }`}
+                          }`}
                       >
                         <span className="material-symbols-outlined">
                           {subject.icon}
                         </span>
                       </div>
                       <span
-                        className={`text-xs font-bold ${
-                          isActive ? "text-primary font-black" : "text-slate-500"
-                        }`}
+                        className={`text-xs font-bold ${isActive ? "text-primary font-black" : "text-slate-500"
+                          }`}
                       >
                         {subject.label}
                       </span>
@@ -371,13 +369,13 @@ function GeradorPlanosContent() {
 
             {/* Generate Button */}
             <div className="pt-4">
-              <button 
+              <button
                 onClick={handleGeneratePlan}
                 disabled={isGenerating || !theme || selectedStudents.length === 0}
                 className="w-full lg:w-auto px-10 py-5 rounded-lg bg-gradient-to-r from-primary to-secondary text-white font-bold text-lg shadow-lg shadow-primary/30 hover:shadow-primary/50 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
               >
                 {isGenerating ? (
-                   <span className="animate-spin size-6 border-4 border-white/20 border-t-white rounded-full"></span>
+                  <span className="animate-spin size-6 border-4 border-white/20 border-t-white rounded-full"></span>
                 ) : (
                   <span className="material-symbols-outlined">auto_fix_high</span>
                 )}

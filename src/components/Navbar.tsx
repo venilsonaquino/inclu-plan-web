@@ -12,7 +12,6 @@ interface NavLink {
 }
 
 const navLinks: NavLink[] = [
-  { href: "/planos/criar", label: "Gerar Plano", icon: "auto_fix_high" },
   { href: "/turmas/criar", label: "Turmas", icon: "groups" },
   { href: "/planos", label: "Biblioteca", icon: "library_books" },
 ];
@@ -59,7 +58,7 @@ export default function Navbar() {
             auto_awesome
           </span>
         </div>
-        <Link href="/planos/criar">
+        <Link href="/turmas/criar">
           <h2 className="text-slate-900 text-xl font-extrabold tracking-tight cursor-pointer">
             incluPlan
           </h2>
