@@ -81,14 +81,13 @@ export default function CriacaoTurmaPage() {
       setTurmas(turmasData);
 
       if (turmasData.length > 0) {
-        // Handle name or nome differences easily gracefully
         if (!selectedTurma) {
           setSelectedTurma(turmasData[0].name || turmasData[0].nome || "");
         }
-        setOnboardingStep(2); // Inicia no passo de "Adicionar Aluno" conforme solicitado
+        setOnboardingStep(2); 
       } else {
-        setOnboardingStep(1); // First time flow
-        setIsCreatingTurma(true); // Force open the form
+        setOnboardingStep(1); 
+        setIsCreatingTurma(true); 
       }
     } catch (error) {
       console.error("Failed to load turmas via proxy route.", error);
@@ -112,7 +111,6 @@ export default function CriacaoTurmaPage() {
       const data = await res.json();
       setSelectedTurma(data.name || data.nome || "");
 
-      // Se a API retornar alunos, atualizamos a lista visual
       if (Array.isArray(data.students)) {
         setAddedStudents(data.students.map((s: any) => ({
           name: s.name,
@@ -130,12 +128,11 @@ export default function CriacaoTurmaPage() {
   };
 
   useEffect(() => {
-    // Se já tivermos turmas e uma selecionada, carregar os detalhes dela (alunos)
     if (turmas.length > 0 && selectedTurma) {
       const current = turmas.find(t => (t.name || t.nome) === selectedTurma);
       if (current) fetchTurmaDetails(current.id);
     }
-  }, [turmas, selectedTurma === ""]); // Trigger only when list loads or first selection
+  }, [turmas, selectedTurma === ""]); 
 
   const handleCreateTurma = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -148,12 +145,9 @@ export default function CriacaoTurmaPage() {
         body: JSON.stringify({ name: newTurmaName, teacherId: TEMP_TEACHER_ID })
       });
 
-      if (!res.ok) {
-        throw new Error("Failed response from proxy/school-classes");
-      }
+      if (!res.ok) throw new Error("Failed response from proxy/school-classes");
 
       const novaTurma = await res.json();
-
       setTurmas([...turmas, novaTurma]);
       setSelectedTurma(novaTurma.name || novaTurma.nome);
       setNewTurmaName("");
@@ -161,15 +155,11 @@ export default function CriacaoTurmaPage() {
       setIsDropdownOpen(false);
 
       if (onboardingStep === 1) {
-        setOnboardingStep(2); // Move to Step 2 (Add Students)
+        setOnboardingStep(2);
       }
-
-      // Carregar detalhes (limpar lista de alunos pois é nova)
       setAddedStudents([]);
     } catch (error) {
-      console.error("Failed to create turma via API route. Triggering UI fallback.", error);
-
-      // Temporary fallback for UI testing if backend is down
+      console.error("Failed to create turma via API route.", error);
       const mockTurma = {
         id: Date.now().toString(),
         nome: newTurmaName,
@@ -181,18 +171,13 @@ export default function CriacaoTurmaPage() {
       setNewTurmaName("");
       setIsCreatingTurma(false);
       setIsDropdownOpen(false);
-
-      if (onboardingStep === 1) {
-        setOnboardingStep(2); // Move to Step 2
-      }
+      if (onboardingStep === 1) setOnboardingStep(2);
     }
   };
 
-  // State for students and feedback
   const [addedStudents, setAddedStudents] = useState<{ name: string, level: string, conditions: string[] }[]>([]);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  // Form state
   const [studentName, setStudentName] = useState("");
   const [studentLevel, setStudentLevel] = useState("");
   const [selectedConditions, setSelectedConditions] = useState<string[]>([]);
@@ -222,7 +207,6 @@ export default function CriacaoTurmaPage() {
       if (!res.ok) throw new Error("Falha ao salvar aluno");
     } catch (err) {
       console.error(err);
-      // Let it fall through to UI success for testing even if backend is offline
     }
 
     const gradeLabel = grades.find(g => g.value === studentLevel)?.label || studentLevel;
@@ -235,20 +219,11 @@ export default function CriacaoTurmaPage() {
 
     setAddedStudents([newStudent, ...addedStudents]);
     setShowSuccess(true);
-
-    // Reset form
     setStudentName("");
     setStudentLevel("");
     setSelectedConditions([]);
     setObservations("");
-
-    // Hide success message after 3 seconds
     setTimeout(() => setShowSuccess(false), 3000);
-
-    // If in onboarding, move to step 3 after first student
-    if (onboardingStep === 2) {
-      setOnboardingStep(3);
-    }
   };
 
   const toggleCondition = (condition: string) => {
@@ -264,7 +239,6 @@ export default function CriacaoTurmaPage() {
       <Navbar />
 
       <main className="max-w-3xl mx-auto px-4 py-8 space-y-6">
-        {/* Loading State */}
         {isLoading && (
           <div className="flex flex-col items-center justify-center py-20 animate-pulse">
             <div className="size-12 rounded-full border-4 border-primary/20 border-t-primary animate-spin mb-4" />
@@ -272,7 +246,6 @@ export default function CriacaoTurmaPage() {
           </div>
         )}
 
-        {/* Onboarding Wizard - Step 1: Empty State (No Turmas) */}
         {!isLoading && onboardingStep === 1 && !isCreatingTurma && (
           <div className="glass-card rounded-2xl p-12 shadow-xl flex flex-col items-center text-center animate-in zoom-in-95 duration-500">
             <div className="size-24 bg-primary/10 text-primary rounded-full flex items-center justify-center mb-6">
@@ -289,7 +262,6 @@ export default function CriacaoTurmaPage() {
           </div>
         )}
 
-        {/* Onboarding Wizard - Step 1: Creating First Turma Form */}
         {!isLoading && onboardingStep === 1 && isCreatingTurma && (
           <div className="glass-card rounded-2xl p-8 max-w-xl mx-auto shadow-xl animate-in slide-in-from-bottom-8 duration-500 mt-12">
             <div className="mb-8 flex flex-col items-center text-center">
@@ -313,7 +285,7 @@ export default function CriacaoTurmaPage() {
                 Criar Turma e Avançar
                 <span className="material-symbols-outlined">arrow_forward</span>
               </Button>
-              {turmas.length > 0 && ( /* Only show cancel if they somehow got back here with turmas */
+              {turmas.length > 0 && (
                 <button
                   type="button"
                   onClick={() => setIsCreatingTurma(false)}
@@ -326,10 +298,8 @@ export default function CriacaoTurmaPage() {
           </div>
         )}
 
-        {/* Normal Layout and Onboarding Wizard - Step 2 (When Turmas Exist) */}
         {!isLoading && onboardingStep >= 2 && (
           <>
-            {/* Class Selector Dropdown — 0% esforço cognitivo */}
             <div className="relative">
               <button
                 onClick={toggleDropdown}
@@ -351,13 +321,9 @@ export default function CriacaoTurmaPage() {
                 </div>
               </button>
 
-              {/* Dropdown Menu */}
               {isDropdownOpen && (
                 <>
-                  <div
-                    className="fixed inset-0 z-20"
-                    onClick={() => setIsDropdownOpen(false)}
-                  />
+                  <div className="fixed inset-0 z-20" onClick={() => setIsDropdownOpen(false)} />
                   <div className="absolute top-full left-0 right-0 mt-3 bg-white/90 backdrop-blur-xl border border-slate-200 rounded-3xl shadow-2xl p-3 z-30 animate-in fade-in zoom-in duration-200 origin-top overflow-hidden">
                     <div className="space-y-1 mb-3 max-h-60 overflow-y-auto no-scrollbar">
                       {turmas.map((turma) => (
@@ -416,7 +382,6 @@ export default function CriacaoTurmaPage() {
               )}
             </div>
 
-            {/* Success Feedback Toast */}
             {showSuccess && (
               <div className="fixed top-24 right-4 z-50 animate-in slide-in-from-right duration-300">
                 <div className="bg-green-500 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3">
@@ -429,13 +394,19 @@ export default function CriacaoTurmaPage() {
               </div>
             )}
 
-            {/* Added Students List — Visual Progress */}
             {addedStudents.length > 0 && (
-              <div className="space-y-4 animate-in fade-in slide-in-from-top duration-500">
+              <div className="space-y-6 animate-in fade-in slide-in-from-top duration-500">
                 <div className="flex items-center justify-between px-2">
                   <h4 className="text-sm font-black uppercase tracking-widest text-slate-400">
                     Alunos na Turma ({addedStudents.length})
                   </h4>
+                  <button 
+                    onClick={() => window.location.href = '/planos/criar'}
+                    className="flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-widest hover:bg-primary/5 px-4 py-2 rounded-full transition-all"
+                  >
+                    <span className="material-symbols-outlined text-lg">auto_awesome</span>
+                    Gerar Plano
+                  </button>
                 </div>
                 <div className="flex flex-wrap gap-3">
                   {addedStudents.map((s, i) => (
@@ -453,20 +424,13 @@ export default function CriacaoTurmaPage() {
               </div>
             )}
 
-            {/* Main Form Card (Hidden in Onboarding Step 3) */}
             {onboardingStep !== 3 && (
               <div className="glass-card rounded-xl p-8 shadow-xl relative overflow-hidden mt-6 animate-in fade-in zoom-in-95 duration-500">
-                {/* Subtle background flair */}
                 <div className="absolute -top-24 -right-24 size-48 bg-primary/5 rounded-full blur-3xl" />
-
                 <div className="mb-8 flex justify-between items-start">
                   <div>
-                    <h3 className="text-2xl font-bold text-slate-900 mb-2">
-                      Adicionar Aluno
-                    </h3>
-                    <p className="text-slate-500">
-                      Preencha os dados do estudante para personalizar o plano de ensino.
-                    </p>
+                    <h3 className="text-2xl font-bold text-slate-900 mb-2">Adicionar Aluno</h3>
+                    <p className="text-slate-500">Preencha os dados do estudante para personalizar o plano de ensino.</p>
                   </div>
                   {onboardingStep === 2 && (
                     <div className="bg-primary/10 px-4 py-2 rounded-xl border border-primary/20 flex items-center gap-2 animate-pulse">
@@ -477,16 +441,11 @@ export default function CriacaoTurmaPage() {
                 </div>
 
                 <form onSubmit={handleAddStudent} className="space-y-8">
-                  {/* Basic Info */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="flex flex-col gap-2">
-                      <label className="text-sm font-semibold text-slate-700 ml-1">
-                        Nome Completo
-                      </label>
+                      <label className="text-sm font-semibold text-slate-700 ml-1">Nome Completo</label>
                       <div className="relative">
-                        <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                          person
-                        </span>
+                        <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">person</span>
                         <input
                           value={studentName}
                           onChange={(e) => setStudentName(e.target.value)}
@@ -497,11 +456,8 @@ export default function CriacaoTurmaPage() {
                         />
                       </div>
                     </div>
-
                     <div className="flex flex-col gap-2">
-                      <label className="text-sm font-semibold text-slate-700 ml-1">
-                        Ano de Aprendizagem
-                      </label>
+                      <label className="text-sm font-semibold text-slate-700 ml-1">Ano de Aprendizagem</label>
                       <Select
                         icon="school"
                         placeholder="Selecione a série..."
@@ -512,13 +468,8 @@ export default function CriacaoTurmaPage() {
                     </div>
                   </div>
 
-                  {/* Neurodivergence Section */}
                   <div className="pt-4 space-y-4">
-                    <label className="text-sm font-semibold text-slate-700 ml-1 block">
-                      Condição ou Neurodivergência
-                    </label>
-                    
-                    {/* Main categories - Prominent primary options */}
+                    <label className="text-sm font-semibold text-slate-700 ml-1 block">Condição ou Neurodivergência</label>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                       {[
                         { key: "TEA", label: "TEA", icon: "extension" },
@@ -526,49 +477,32 @@ export default function CriacaoTurmaPage() {
                         { key: "TOD", label: "TOD", icon: "warning" },
                         { key: "Deficiência Intelectual", label: "Deficiência Intelectual", icon: "psychology" },
                       ].map((mainItem) => {
-                        const apiMatch = neurodivergencies.find((n: Neurodivergency) => 
-                          n.name.toUpperCase().trim() === mainItem.label.toUpperCase()
-                        );
-                        
+                        const apiMatch = neurodivergencies.find((n: Neurodivergency) => n.name.toUpperCase().trim() === mainItem.label.toUpperCase());
                         const idToToggle = apiMatch?.id || mainItem.key;
                         const isSelected = selectedConditions.includes(idToToggle);
-
                         return (
                           <label key={mainItem.key} className="cursor-pointer group">
-                            <input 
-                              className="hidden peer" 
-                              type="checkbox" 
-                              checked={isSelected}
-                              onChange={() => toggleCondition(idToToggle)}
-                            />
+                            <input className="hidden peer" type="checkbox" checked={isSelected} onChange={() => toggleCondition(idToToggle)} />
                             <div className="flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-slate-100 bg-white transition-all peer-checked:border-primary peer-checked:bg-primary/5 group-hover:border-primary/50 text-center min-h-[120px] shadow-sm">
-                              <span className={`material-symbols-outlined text-3xl mb-3 transition-colors ${isSelected ? 'text-primary' : 'text-slate-400 group-hover:text-slate-500'}`}>
-                                {mainItem.icon}
-                              </span>
-                              <span className={`text-[10px] font-black leading-tight uppercase tracking-tight transition-colors ${isSelected ? 'text-primary' : 'text-slate-500'}`}>
-                                {mainItem.label}
-                              </span>
+                              <span className={`material-symbols-outlined text-3xl mb-3 transition-colors ${isSelected ? 'text-primary' : 'text-slate-400 group-hover:text-slate-500'}`}>{mainItem.icon}</span>
+                              <span className={`text-[10px] font-black leading-tight uppercase tracking-tight transition-colors ${isSelected ? 'text-primary' : 'text-slate-500'}`}>{mainItem.label}</span>
                             </div>
                           </label>
                         );
                       })}
                     </div>
 
-                    {/* Expandable "Ver Mais" Control - Minimalist style */}
                     <div className="flex justify-center">
                       <button
                         type="button"
                         onClick={() => setShowExtraConditions(!showExtraConditions)}
                         className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-slate-200 bg-white/50 text-slate-500 text-[11px] font-bold hover:bg-white hover:text-primary hover:border-primary/30 transition-all shadow-sm ${showExtraConditions ? 'text-primary border-primary/20 bg-primary/5' : ''}`}
                       >
-                        <span className={`material-symbols-outlined text-lg transition-transform duration-300 ${showExtraConditions ? 'rotate-45' : ''}`}>
-                          add
-                        </span>
+                        <span className={`material-symbols-outlined text-lg transition-transform duration-300 ${showExtraConditions ? 'rotate-45' : ''}`}>add</span>
                         <span>{showExtraConditions ? 'Ocultar' : 'Outros'}</span>
                       </button>
                     </div>
 
-                    {/* Advanced / Extra Categories - Revealed Section */}
                     {showExtraConditions && (
                       <div className="p-5 bg-slate-50/80 rounded-[2rem] border border-dashed border-slate-200 animate-in fade-in zoom-in-95 duration-300">
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
@@ -579,51 +513,28 @@ export default function CriacaoTurmaPage() {
                             { key: "DLD / TEL", label: "DLD / TEL", icon: "campaign" },
                             { key: "Dispraxia / TDC", label: "Dispraxia / TDC", icon: "directions_run" },
                           ].map((subItem) => {
-                            const apiMatch = neurodivergencies.find((n: Neurodivergency) => 
-                              n.name.toUpperCase().trim() === subItem.label.toUpperCase()
-                            );
+                            const apiMatch = neurodivergencies.find((n: Neurodivergency) => n.name.toUpperCase().trim() === subItem.label.toUpperCase());
                             const idToToggle = apiMatch?.id || subItem.key;
                             const isSelected = selectedConditions.includes(idToToggle);
-
                             return (
                               <label key={subItem.key} className="cursor-pointer group">
-                                <input 
-                                  className="hidden peer" 
-                                  type="checkbox" 
-                                  checked={isSelected}
-                                  onChange={() => toggleCondition(idToToggle)}
-                                />
+                                <input className="hidden peer" type="checkbox" checked={isSelected} onChange={() => toggleCondition(idToToggle)} />
                                 <div className="flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-slate-100 bg-white transition-all peer-checked:border-primary peer-checked:bg-primary/5 group-hover:border-primary/50 text-center min-h-[100px] shadow-sm">
-                                  <span className={`material-symbols-outlined text-2xl mb-2 transition-colors ${isSelected ? 'text-primary' : 'text-slate-400 group-hover:text-slate-500'}`}>
-                                    {subItem.icon}
-                                  </span>
-                                  <span className={`text-[9px] font-bold leading-tight uppercase tracking-tight transition-colors ${isSelected ? 'text-primary' : 'text-slate-500'}`}>
-                                    {subItem.label}
-                                  </span>
+                                  <span className={`material-symbols-outlined text-2xl mb-2 transition-colors ${isSelected ? 'text-primary' : 'text-slate-400 group-hover:text-slate-500'}`}>{subItem.icon}</span>
+                                  <span className={`text-[9px] font-bold leading-tight uppercase tracking-tight transition-colors ${isSelected ? 'text-primary' : 'text-slate-500'}`}>{subItem.label}</span>
                                 </div>
                               </label>
                             );
                           })}
-
-                          {/* Render any ADDITIONAL items from the API */}
                           {neurodivergencies.filter((n: Neurodivergency) => {
                             const coreNames = ["TEA", "TDAH", "TOD", "DEFICIÊNCIA INTELECTUAL", "DISLEXIA", "DISGRAFIA", "DISCALCULIA", "DLD / TEL", "DISPRAXIA / TDC"];
                             return !coreNames.includes(n.name.toUpperCase().trim());
                           }).map((extraItem) => (
                             <label key={extraItem.id} className="cursor-pointer group">
-                              <input 
-                                className="hidden peer" 
-                                type="checkbox" 
-                                checked={selectedConditions.includes(extraItem.id)}
-                                onChange={() => toggleCondition(extraItem.id)}
-                              />
+                              <input className="hidden peer" type="checkbox" checked={selectedConditions.includes(extraItem.id)} onChange={() => toggleCondition(extraItem.id)} />
                               <div className="flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-slate-100 bg-white transition-all peer-checked:border-primary peer-checked:bg-primary/5 group-hover:border-primary/50 text-center min-h-[100px] shadow-sm">
-                                <span className={`material-symbols-outlined text-2xl mb-2 transition-colors ${selectedConditions.includes(extraItem.id) ? 'text-primary' : 'text-slate-400 group-hover:text-slate-500'}`}>
-                                  psychology
-                                </span>
-                                <span className={`text-[9px] font-bold leading-tight uppercase tracking-tight transition-colors ${selectedConditions.includes(extraItem.id) ? 'text-primary' : 'text-slate-500'}`}>
-                                  {extraItem.name}
-                                </span>
+                                <span className={`material-symbols-outlined text-2xl mb-2 transition-colors ${selectedConditions.includes(extraItem.id) ? 'text-primary' : 'text-slate-400 group-hover:text-slate-500'}`}>psychology</span>
+                                <span className={`text-[9px] font-bold leading-tight uppercase tracking-tight transition-colors ${selectedConditions.includes(extraItem.id) ? 'text-primary' : 'text-slate-500'}`}>{extraItem.name}</span>
                               </div>
                             </label>
                           ))}
@@ -632,11 +543,8 @@ export default function CriacaoTurmaPage() {
                     )}
                   </div>
 
-                  {/* Observations */}
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-semibold text-slate-700 ml-1">
-                      Observações Adicionais (Opcional)
-                    </label>
+                    <label className="text-sm font-semibold text-slate-700 ml-1">Observações Adicionais (Opcional)</label>
                     <textarea
                       value={observations}
                       onChange={(e) => setObservations(e.target.value)}
@@ -646,55 +554,36 @@ export default function CriacaoTurmaPage() {
                     />
                   </div>
 
-                  {/* CTA */}
                   <div className="pt-6">
-                    <button
-                      className="btn-primary-gradient w-full py-5 rounded-2xl text-white font-bold text-lg shadow-xl shadow-primary/20 hover:shadow-primary/40 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-                      type="submit"
-                    >
+                    <button className="btn-primary-gradient w-full py-5 rounded-2xl text-white font-bold text-lg shadow-xl shadow-primary/20 hover:shadow-primary/40 active:scale-[0.98] transition-all flex items-center justify-center gap-2" type="submit">
                       <span className="material-symbols-outlined">person_add</span>
-                      {onboardingStep === 2 ? "Adicionar Primeiro Aluno" : "Adicionar Aluno"}
+                      Adicionar Aluno
                     </button>
-                    <p className="text-center text-xs text-slate-400 mt-4 leading-relaxed">
-                      Ao adicionar, o aluno será vinculado à turma <span className="text-primary font-bold">{selectedTurma}</span>.
-                    </p>
                   </div>
                 </form>
               </div>
             )}
 
-            {/* Onboarding Step 3: Final CTA to Finish Flow */}
-            {onboardingStep === 3 && (
-              <div className="glass-card rounded-2xl p-10 shadow-2xl border-primary/20 flex flex-col items-center text-center animate-in zoom-in-95 duration-500 mt-6 relative overflow-hidden">
-                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-primary to-secondary"></div>
-
-                <div className="size-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-6 shadow-inner">
-                  <span className="material-symbols-outlined !text-4xl font-bold">task_alt</span>
+            {addedStudents.length > 0 && (
+              <div className="glass-card rounded-2xl p-6 shadow-lg border-2 border-primary/10 flex flex-col md:flex-row items-center justify-between gap-4 animate-in slide-in-from-bottom duration-500 mt-6 bg-gradient-to-br from-white to-primary/5">
+                <div className="flex items-center gap-4">
+                  <div className="size-12 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                    <span className="material-symbols-outlined font-bold">celebration</span>
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-slate-900">Turma pronta para o plano!</h4>
+                    <p className="text-xs text-slate-500">Você já pode gerar o plano de aula para estes alunos.</p>
+                  </div>
                 </div>
-
-                <h3 className="text-2xl font-black text-slate-900 mb-3 tracking-tight">Tudo pronto por aqui!</h3>
-                <p className="text-base text-slate-500 mb-8 max-w-sm">
-                  Sua turma <strong className="text-slate-700">{selectedTurma}</strong> já tem perfil criado. Vamos testar a geração do seu primeiro plano de ensino adaptado?
-                </p>
-
-                <div className="w-full space-y-4 max-w-sm">
-                  <Button
-                    size="lg"
-                    variant="primary"
-                    className="w-full py-5 text-lg shadow-xl shadow-primary/40 flex items-center justify-center gap-3"
-                    onClick={() => router.push('/planos/criar')}
-                  >
-                    <span className="material-symbols-outlined">auto_awesome</span>
-                    Gerar Plano de Aula
-                  </Button>
-
-                  <button
-                    onClick={() => setOnboardingStep(2)}
-                    className="w-full text-slate-500 font-bold hover:text-slate-800 transition-colors uppercase tracking-widest text-xs py-3"
-                  >
-                    Adicionar mais alunos agora
-                  </button>
-                </div>
+                <Button 
+                  size="lg" 
+                  variant="primary" 
+                  className="px-8 py-4 shadow-xl shadow-primary/20 gap-2 group whitespace-nowrap"
+                  onClick={() => window.location.href = '/planos/criar'}
+                >
+                  <span className="material-symbols-outlined group-hover:rotate-12 transition-transform">auto_awesome</span>
+                  Gerar Plano de Aula
+                </Button>
               </div>
             )}
           </>
