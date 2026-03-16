@@ -5,18 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-
-const subjects = [
-  { icon: "menu_book", label: "Português" },
-  { icon: "calculate", label: "Matemática" },
-  { icon: "science", label: "Ciências" },
-  { icon: "history_edu", label: "História" },
-  { icon: "public", label: "Geografia" },
-  { icon: "palette", label: "Arte" },
-  { icon: "fitness_center", label: "Ed. Física" },
-  { icon: "translate", label: "Inglês" },
-  { icon: "church", label: "Religião" },
-];
+import subjects from "@/data/subjects.json";
 
 // Initial mock data, moved inside component to allow state updates
 const initialStudents = [
@@ -254,8 +243,8 @@ function GeradorPlanosContent({ turmaId: propTurmaId }: { turmaId?: string }) {
                     >
                       <div
                         className={`size-12 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform mb-2 ${isActive
-                            ? "bg-primary/10 text-primary"
-                            : "bg-slate-100 text-slate-400"
+                          ? "bg-primary/10 text-primary"
+                          : "bg-slate-100 text-slate-400"
                           }`}
                       >
                         <span className="material-symbols-outlined">

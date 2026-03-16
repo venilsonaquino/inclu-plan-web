@@ -1,0 +1,11 @@
+[
+  { "id": "portugues", "icon": "menu_book", "label": "Português", "color": "bg-blue-100", "textColor": "text-blue-500" },
+  { "id": "matematica", "icon": "calculate", "label": "Matemática", "color": "bg-orange-100", "textColor": "text-orange-500" },
+  { "id": "ciencias", "icon": "science", "label": "Ciências", "color": "bg-emerald-100", "textColor": "text-emerald-500" },
+  { "id": "historia", "icon": "history_edu", "label": "História", "color": "bg-amber-100", "textColor": "text-amber-500" },
+  { "id": "geografia", "icon": "public", "label": "Geografia", "color": "bg-cyan-100", "textColor": "text-cyan-500" },
+  { "id": "arte", "icon": "palette", "label": "Arte", "color": "bg-purple-100", "textColor": "text-purple-500" },
+  { "id": "ed_fisica", "icon": "fitness_center", "label": "Ed. Física", "color": "bg-pink-100", "textColor": "text-pink-500" },
+  { "id": "ingles", "icon": "translate", "label": "Inglês", "color": "bg-indigo-100", "textColor": "text-indigo-500" },
+  { "id": "religiao", "icon": "church", "label": "Religião", "color": "bg-yellow-100", "textColor": "text-yellow-500" }
+]
