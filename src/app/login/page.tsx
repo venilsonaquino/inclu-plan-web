@@ -35,20 +35,17 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "E-mail ou senha incorretos.");
+        if (res.status === 401) {
+          throw new Error("Senha incorreta. Por favor, verifique sua senha e tente novamente.");
+        }
+        if (res.status === 404) {
+          throw new Error("E-mail não cadastrado. Verifique o endereço digitado ou crie uma nova conta.");
+        }
+        throw new Error(data.error || data.message || "Não foi possível realizar o login.");
       }
 
-      // After successful login, check if user has any classes
-      const classesRes = await fetch("/api/proxy/school-classes");
-      const classesData = await classesRes.json();
-      
-      if (Array.isArray(classesData) && classesData.length === 0) {
-        // Redireciona para o formulário de criação se não houver turmas
-        router.push("/turmas/criar");
-      } else {
-        // Sucesso - Redireciona para o dashboard se houver turmas
-        router.push("/turmas");
-      }
+      // Redireciona para o fluxo de turmas/onboarding (o usuário quer cair na tela de gestão/adicionar aluno)
+      router.push("/turmas/criar");
     } catch (err: any) {
       setError(err.message);
     } finally {

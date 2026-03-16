@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
 
     // Proxy the login request to the NestJS backend
     const response = await serverApiFetch<{ accessToken?: string; token?: string }>(
-      '/auth/login',
+      '/identity/login',
       {
         method: "POST",
         body: JSON.stringify(body),
