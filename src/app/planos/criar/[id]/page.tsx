@@ -6,6 +6,7 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import subjects from "@/data/subjects.json";
+import { formatRelativeTime } from "@/lib/date-utils";
 
 // Initial mock data, moved inside component to allow state updates
 const initialStudents = [
@@ -16,38 +17,7 @@ const initialStudents = [
   { id: "5", initials: "CC", name: "Clara C.", color: "bg-pink-100 text-pink-500", selected: false },
 ];
 
-const lessonPlans = [
-  {
-    title: "Interpretação de Textos",
-    description: "Plano focado em gêneros textuais e compreensão de crônicas contemporâneas.",
-    subject: "Português",
-    icon: "menu_book",
-    iconBg: "bg-primary/10 text-primary",
-    borderColor: "border-l-primary",
-    level: "Ensino Fundamental II",
-    time: "Há 2 dias",
-  },
-  {
-    title: "Geometria Espacial",
-    description: "Introdução aos volumes de prismas e pirâmides com atividades lúdicas.",
-    subject: "Matemática",
-    icon: "explore",
-    iconBg: "bg-orange-100 text-orange-500",
-    borderColor: "border-l-orange-400",
-    level: "Ensino Médio",
-    time: "Há 1 semana",
-  },
-  {
-    title: "Fotossíntese",
-    description: "Processos biológicos da luz e clorofila com experiência prática de laboratório.",
-    subject: "Ciências",
-    icon: "science",
-    iconBg: "bg-emerald-100 text-emerald-500",
-    borderColor: "border-l-emerald-400",
-    level: "Ensino Fundamental I",
-    time: "Ontem",
-  },
-];
+
 
 export default function GeradorPlanosPage({ params }: { params: Promise<{ id: string }> }) {
   const unwrappedParams = use(params);
@@ -70,6 +40,22 @@ function GeradorPlanosContent({ turmaId: propTurmaId }: { turmaId?: string }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [isCreatingNew, setIsCreatingNew] = useState(false);
   const router = useRouter();
+
+  const [latestPlans, setLatestPlans] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchLatestPlans = async () => {
+      try {
+        const res = await fetch("/api/proxy/lessons?limit=3");
+        if (!res.ok) throw new Error("Erro ao buscar planos");
+        const data = await res.json();
+        setLatestPlans(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error("Failed to fetch latest plans", err);
+      }
+    };
+    fetchLatestPlans();
+  }, []);
 
   useEffect(() => {
     if (turmaId) {
@@ -337,7 +323,7 @@ function GeradorPlanosContent({ turmaId: propTurmaId }: { turmaId?: string }) {
                 <input
                   value={theme}
                   onChange={(e) => setTheme(e.target.value)}
-                  className="w-full px-5 py-4 rounded-lg bg-white/50 border-slate-200 focus:border-primary focus:ring-primary/20 text-slate-800 placeholder:text-slate-400 outline-none transition-all"
+                  className="w-full px-6 py-4 rounded-full bg-white border border-slate-200 focus:border-primary focus:ring-primary/20 text-slate-800 placeholder:text-slate-400/60 outline-none transition-all"
                   placeholder="Ex: O Ciclo da Água, Orações Subordinadas..."
                   type="text"
                 />
@@ -349,7 +335,7 @@ function GeradorPlanosContent({ turmaId: propTurmaId }: { turmaId?: string }) {
                 <textarea
                   value={observations}
                   onChange={(e) => setObservations(e.target.value)}
-                  className="w-full px-5 py-4 rounded-lg bg-white/50 border-slate-200 focus:border-primary focus:ring-primary/20 text-slate-800 placeholder:text-slate-400 outline-none transition-all resize-none"
+                  className="w-full px-6 py-4 rounded-3xl bg-white border border-slate-200 focus:border-primary focus:ring-primary/20 text-slate-800 placeholder:text-slate-400/60 outline-none transition-all"
                   placeholder="Ex: Focar em acessibilidade para alunos com TDAH..."
                   rows={2}
                 />
@@ -392,51 +378,61 @@ function GeradorPlanosContent({ turmaId: propTurmaId }: { turmaId?: string }) {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {lessonPlans.map((plan) => (
-              <Link
-                key={plan.title}
-                href="/planos/cores-e-sentimentos"
-                className={`glass-card rounded-xl p-6 hover:shadow-xl hover:-translate-y-1 transition-all group border-l-4 ${plan.borderColor}`}
-              >
-                <div className="flex justify-between items-start mb-4">
-                  <div className={`p-3 rounded-lg ${plan.iconBg}`}>
-                    <span className="material-symbols-outlined">
-                      {plan.icon}
-                    </span>
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      className="p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-primary transition-colors"
-                      title="Visualizar"
-                    >
-                      <span className="material-symbols-outlined">
-                        visibility
-                      </span>
-                    </button>
-                    <button
-                      className="p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-primary transition-colors"
-                      title="Baixar PDF"
-                    >
-                      <span className="material-symbols-outlined">
-                        picture_as_pdf
-                      </span>
-                    </button>
-                  </div>
-                </div>
+            {latestPlans.map((plan: any) => {
+              const subjectDetails = subjects.find(s => s.label.toLowerCase() === plan.discipline.toLowerCase()) || {
+                icon: "menu_book",
+                color: "bg-primary/10",
+                textColor: "text-primary"
+              };
 
-                <h3 className="text-lg font-bold text-slate-900 mb-1 group-hover:text-primary transition-colors">
-                  {plan.title}
-                </h3>
-                <p className="text-sm text-slate-500 line-clamp-2">
-                  {plan.description}
-                </p>
+              return (
+                <Link
+                  key={plan.id}
+                  href={`/planos/${plan.id}`}
+                  className="glass-card rounded-2xl p-6 hover:shadow-xl hover:-translate-y-1 transition-all group border-l-4 border-l-primary flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex justify-between items-start mb-4">
+                      <div className={`p-3 rounded-full flex items-center justify-center ${subjectDetails.color} ${subjectDetails.textColor} size-12`}>
+                        <span className="material-symbols-outlined">
+                          {subjectDetails.icon}
+                        </span>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          className="p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-primary transition-colors"
+                          title="Visualizar"
+                        >
+                          <span className="material-symbols-outlined">
+                            visibility
+                          </span>
+                        </button>
+                        <button
+                          className="p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-primary transition-colors"
+                          title="Baixar PDF"
+                        >
+                          <span className="material-symbols-outlined">
+                            picture_as_pdf
+                          </span>
+                        </button>
+                      </div>
+                    </div>
 
-                <div className="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center text-xs font-bold text-slate-400 uppercase tracking-widest">
-                  <span>{plan.level}</span>
-                  <span>{plan.time}</span>
-                </div>
-              </Link>
-            ))}
+                    <h3 className="text-lg font-bold text-slate-900 mb-1 group-hover:text-primary transition-colors">
+                      {plan.title}
+                    </h3>
+                    <p className="text-sm text-slate-500 line-clamp-2">
+                      {plan.description}
+                    </p>
+                  </div>
+
+                  <div className="mt-6 pt-4 border-t border-slate-100 flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                    <span>{plan.targetAudience}</span>
+                    <span>{formatRelativeTime(plan.createdAt)}</span>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </section>
       </main>
