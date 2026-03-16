@@ -439,6 +439,18 @@ function GeradorPlanosContent({ turmaId: propTurmaId }: { turmaId?: string }) {
 
 
 
+      {isGenerating && (
+        <div className="fixed inset-0 bg-white/80 backdrop-blur-md z-50 flex flex-col items-center justify-center animate-in fade-in duration-300">
+          <div className="flex flex-col items-center max-w-sm text-center px-4">
+            <div className="size-14 rounded-full border-4 border-primary/20 border-t-primary animate-spin mb-6" />
+            <h3 className="text-xl font-black text-slate-900 mb-2 tracking-tight">Gerando Plano de Aula</h3>
+            <p className="text-slate-500 text-sm leading-relaxed">
+              Nossa Inteligência Artificial está adaptando os conteúdos para as necessidades dos seus alunos.
+            </p>
+          </div>
+        </div>
+      )}
+
       <Footer />
     </div>
   );
