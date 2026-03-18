@@ -93,6 +93,29 @@ function GeradorPlanosContent({ turmaId: propTurmaId }: { turmaId?: string }) {
   const [observations, setObservations] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
 
+  const loadingPhrases = [
+    "Analisando o perfil da turma...",
+    "Mapeando objetivos da BNCC...",
+    "Adaptando estratégias de inclusão UDL...",
+    "Finalizando estrutura do plano..."
+  ];
+  const [loadingText, setLoadingText] = useState(loadingPhrases[0]);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isGenerating) {
+      let index = 0;
+      setLoadingText(loadingPhrases[0]);
+      interval = setInterval(() => {
+        index = (index + 1) % loadingPhrases.length;
+        setLoadingText(loadingPhrases[index]);
+      }, 3500);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isGenerating]);
+
   // New Student Form State
   const [newStudentName, setNewStudentName] = useState("");
   const [newStudentLevel, setNewStudentLevel] = useState("");
@@ -167,18 +190,26 @@ function GeradorPlanosContent({ turmaId: propTurmaId }: { turmaId?: string }) {
       if (!res.ok) throw new Error("Erro ao gerar plano");
 
       const generatedPlan = await res.json();
-      const planId = generatedPlan?.lessons?.[0]?.id ?? generatedPlan?.id;
+      console.log("[GeradorPlanos] Resposta da API:", generatedPlan);
+
+      const planId = generatedPlan?.lessons?.[0]?.id ?? 
+                     generatedPlan?.id ?? 
+                     (Array.isArray(generatedPlan) ? generatedPlan[0]?.id : undefined) ??
+                     generatedPlan?.lesson?.id;
 
       if (planId) {
         router.push(`/planos/${planId}`);
       } else {
-        throw new Error("ID do plano não retornado pela API");
+        throw new Error(`ID do plano não retornado pela API. Resposta: ${JSON.stringify(generatedPlan)}`);
       }
 
     } catch (err) {
       console.error(err);
-      alert("Houve um erro ao gerar o plano. Tente novamente.");
+      alert((err as Error).message.includes("ID do plano") 
+        ? (err as Error).message 
+        : "Houve um erro ao gerar o plano. Tente novamente.");
     } finally {
+
       setIsGenerating(false);
     }
   };
@@ -437,16 +468,24 @@ function GeradorPlanosContent({ turmaId: propTurmaId }: { turmaId?: string }) {
 
 
       {isGenerating && (
-        <div className="fixed inset-0 bg-white/80 backdrop-blur-md z-50 flex flex-col items-center justify-center animate-in fade-in duration-300">
+        <div className="fixed inset-0 bg-white/90 backdrop-blur-lg z-50 flex flex-col items-center justify-center animate-in fade-in duration-300">
           <div className="flex flex-col items-center max-w-sm text-center px-4">
-            <div className="size-14 rounded-full border-4 border-primary/20 border-t-primary animate-spin mb-6" />
-            <h3 className="text-xl font-black text-slate-900 mb-2 tracking-tight">Gerando Plano de Aula</h3>
-            <p className="text-slate-500 text-sm leading-relaxed">
+            <div className="size-16 relative mb-6 flex items-center justify-center">
+              <div className="size-full rounded-full border-4 border-primary/10 border-t-primary animate-spin absolute" />
+              <div className="size-8 bg-primary/20 rounded-full animate-ping absolute" />
+              <span className="material-symbols-outlined text-primary !text-2xl z-10">magic_button</span>
+            </div>
+            <h3 className="text-xl font-black text-slate-900 mb-2 tracking-tight">Gerando seu Plano de Aula</h3>
+            <p className="text-primary font-bold text-sm mb-1 animate-pulse">
+              {loadingText}
+            </p>
+            <p className="text-slate-400 text-xs leading-relaxed max-w-[280px]">
               Nossa Inteligência Artificial está adaptando os conteúdos para as necessidades dos seus alunos.
             </p>
           </div>
         </div>
       )}
+
 
       <Footer />
     </div>
