@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
+import Loading from "@/components/ui/Loading";
 
 interface Turma {
   id: string;
@@ -84,10 +85,10 @@ export default function CriacaoTurmaPage() {
         if (!selectedTurma) {
           setSelectedTurma(turmasData[0].name || turmasData[0].nome || "");
         }
-        setOnboardingStep(2); 
+        setOnboardingStep(2);
       } else {
-        setOnboardingStep(1); 
-        setIsCreatingTurma(true); 
+        setOnboardingStep(1);
+        setIsCreatingTurma(true);
       }
     } catch (error) {
       console.error("Failed to load turmas via proxy route.", error);
@@ -132,7 +133,7 @@ export default function CriacaoTurmaPage() {
       const current = turmas.find(t => (t.name || t.nome) === selectedTurma);
       if (current) fetchTurmaDetails(current.id);
     }
-  }, [turmas, selectedTurma === ""]); 
+  }, [turmas, selectedTurma === ""]);
 
   const handleCreateTurma = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -234,19 +235,17 @@ export default function CriacaoTurmaPage() {
     );
   };
 
+  if (isLoading) {
+    return <Loading text="Carregando turmas..." />;
+  }
+
   return (
     <div className="bg-background-light min-h-screen text-slate-900 font-display">
       <Navbar />
 
       <main className="max-w-3xl mx-auto px-4 py-8 space-y-6">
-        {isLoading && (
-          <div className="flex flex-col items-center justify-center py-20 animate-pulse">
-            <div className="size-12 rounded-full border-4 border-primary/20 border-t-primary animate-spin mb-4" />
-            <p className="text-slate-500 font-bold">Carregando turmas...</p>
-          </div>
-        )}
-
         {!isLoading && onboardingStep === 1 && !isCreatingTurma && (
+
           <div className="glass-card rounded-2xl p-12 shadow-xl flex flex-col items-center text-center animate-in zoom-in-95 duration-500">
             <div className="size-24 bg-primary/10 text-primary rounded-full flex items-center justify-center mb-6">
               <span className="material-symbols-outlined !text-5xl">inventory_2</span>
@@ -400,7 +399,7 @@ export default function CriacaoTurmaPage() {
                   <h4 className="text-sm font-black uppercase tracking-widest text-slate-400">
                     Alunos na Turma ({addedStudents.length})
                   </h4>
-                  <button 
+                  <button
                     onClick={() => {
                       const currentTurmaObj = turmas.find(t => (t.name || t.nome) === selectedTurma);
                       window.location.href = `/planos/criar/${currentTurmaObj?.id || ''}?turmaNome=${encodeURIComponent(selectedTurma)}`;
@@ -578,9 +577,9 @@ export default function CriacaoTurmaPage() {
                     <p className="text-xs text-slate-500">Você já pode gerar o plano de aula para estes alunos.</p>
                   </div>
                 </div>
-                <Button 
-                  size="lg" 
-                  variant="primary" 
+                <Button
+                  size="lg"
+                  variant="primary"
                   className="px-8 py-4 shadow-xl shadow-primary/20 gap-2 group whitespace-nowrap"
                   onClick={() => {
                     const currentTurmaObj = turmas.find(t => (t.name || t.nome) === selectedTurma);
@@ -588,7 +587,7 @@ export default function CriacaoTurmaPage() {
                   }}
                 >
                   <span className="material-symbols-outlined group-hover:rotate-12 transition-transform">auto_awesome</span>
-                  Gerar Plano de Aula
+                  Criar Novo Plano de Aula
                 </Button>
               </div>
             )}

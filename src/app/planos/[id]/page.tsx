@@ -1,37 +1,64 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
-import { serverApiFetch } from "@/lib/server-api";
-import { cookies } from "next/headers";
 import subjects from "@/data/subjects.json";
-import mockData from "@/data/lesson-plan-detail-mock.json";
 import Link from "next/link";
-import { formatRelativeTime } from "@/lib/date-utils";
+import Loading from "@/components/ui/Loading";
 
-export default async function DetalhesPlanoPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export default function DetalhesPlanoPage() {
+  const { id } = useParams<{ id: string }>();
 
-  let planData: any = null;
+  const [planData, setPlanData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
 
-  try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("auth_token")?.value;
-    const res = await serverApiFetch<any>(`/lessons/${id}`, { method: 'GET' }, token);
-    
-    if (res.ok) {
-        planData = await res.json();
-    }
-  } catch (error) {
-     console.error("Error fetching plan:", error);
+  useEffect(() => {
+    if (!id) return;
+
+    const fetchPlan = async () => {
+      try {
+        const res = await fetch(`/api/proxy/lessons/${id}`);
+        if (!res.ok) {
+          setNotFound(true);
+          return;
+        }
+        const data = await res.json();
+        setPlanData(data);
+      } catch (error) {
+        console.error("[DetalhesPlano] Erro ao buscar plano:", error);
+        setNotFound(true);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPlan();
+  }, [id]);
+
+  if (isLoading) {
+    return <Loading text="Carregando plano de aula..." />;
   }
 
-  // Fallback to mock data for demonstration if fetch fails or looks like example ID
-  if (!planData || id === "bc14a3da-cb5d-4f97-a182-aaa8c2c9156c") {
-      planData = mockData;
+
+  if (notFound || !planData) {
+    return (
+      <div className="relative flex min-h-screen w-full flex-col bg-background-light gradient-bg text-slate-900 font-display">
+        <Navbar />
+        <main className="flex-1 flex items-center justify-center">
+          <p className="text-slate-500 font-medium">Plano de aula não encontrado.</p>
+        </main>
+      </div>
+    );
   }
 
-  const subjectDetails = subjects.find(s => s.label.toLowerCase() === planData.discipline.toLowerCase()) || {
+  const subjectDetails = subjects.find(
+    (s) => s.label.toLowerCase() === planData.discipline?.toLowerCase()
+  ) || {
     icon: "menu_book",
     color: "bg-primary/10",
-    textColor: "text-primary"
+    textColor: "text-primary",
   };
 
   return (
@@ -135,8 +162,8 @@ export default async function DetalhesPlanoPage({ params }: { params: Promise<{ 
                 {planData.bnccDescription && (
                   <section className="bg-slate-50/80 p-5 rounded-2xl border border-slate-100">
                     <h4 className="text-sm font-bold text-slate-800 mb-2 flex items-center gap-1">
-                       <span className="material-symbols-outlined text-sm text-slate-500">menu_book</span>
-                       Descrição BNCC
+                      <span className="material-symbols-outlined text-sm text-slate-500">menu_book</span>
+                      Descrição BNCC
                     </h4>
                     <p className="text-slate-600 text-sm">{planData.bnccDescription}</p>
                   </section>
@@ -151,7 +178,7 @@ export default async function DetalhesPlanoPage({ params }: { params: Promise<{ 
                     Etapas da Aula
                   </h3>
                   <div className="space-y-4">
-                    {planData.activitySteps.map((step: string, index: number) => {
+                    {planData.activitySteps?.map((step: string, index: number) => {
                       const parts = step.split(":");
                       const title = parts[0];
                       const description = parts.slice(1).join(":");
@@ -183,22 +210,22 @@ export default async function DetalhesPlanoPage({ params }: { params: Promise<{ 
                 {/* Resources */}
                 {planData.resources && (
                   <section>
-                     <h3 className="text-base font-bold text-slate-900 flex items-center gap-2 mb-3">
-                        <span className="material-symbols-outlined text-primary">backpack</span>
-                        Recursos Necessários
-                     </h3>
-                     <p className="text-slate-600 bg-white/40 p-4 rounded-2xl border border-white/60 text-sm">{planData.resources}</p>
+                    <h3 className="text-base font-bold text-slate-900 flex items-center gap-2 mb-3">
+                      <span className="material-symbols-outlined text-primary">backpack</span>
+                      Recursos Necessários
+                    </h3>
+                    <p className="text-slate-600 bg-white/40 p-4 rounded-2xl border border-white/60 text-sm">{planData.resources}</p>
                   </section>
                 )}
 
-                 {/* Evaluation */}
-                 {planData.evaluation && (
+                {/* Evaluation */}
+                {planData.evaluation && (
                   <section>
-                     <h3 className="text-base font-bold text-slate-900 flex items-center gap-2 mb-3">
-                        <span className="material-symbols-outlined text-primary">task</span>
-                        Avaliação
-                     </h3>
-                     <p className="text-slate-600 bg-white/40 p-4 rounded-2xl border border-white/60 text-sm">{planData.evaluation}</p>
+                    <h3 className="text-base font-bold text-slate-900 flex items-center gap-2 mb-3">
+                      <span className="material-symbols-outlined text-primary">task</span>
+                      Avaliação
+                    </h3>
+                    <p className="text-slate-600 bg-white/40 p-4 rounded-2xl border border-white/60 text-sm">{planData.evaluation}</p>
                   </section>
                 )}
               </div>
@@ -251,7 +278,7 @@ export default async function DetalhesPlanoPage({ params }: { params: Promise<{ 
 
                 {/* Date created */}
                 <div className="text-xs text-slate-400 text-center">
-                    Criado em {new Date(planData.createdAt).toLocaleDateString('pt-BR')}
+                  Criado em {new Date(planData.createdAt).toLocaleDateString("pt-BR")}
                 </div>
               </div>
             </div>
@@ -269,7 +296,7 @@ export default async function DetalhesPlanoPage({ params }: { params: Promise<{ 
             </h2>
 
             <div className="space-y-6">
-              {planData.adaptations && planData.adaptations.map((student: any) => {
+              {planData.adaptations?.map((student: any) => {
                 const initials = student.studentName
                   .split(" ")
                   .map((n: string) => n[0])
@@ -280,9 +307,7 @@ export default async function DetalhesPlanoPage({ params }: { params: Promise<{ 
                 return (
                   <div key={student.id || student.studentId} className="group">
                     <div className="flex items-center gap-3 mb-3">
-                      <div
-                        className={`size-10 rounded-full bg-blue-100 text-blue-500 flex items-center justify-center overflow-hidden border-2 border-white group-hover:scale-105 transition-transform font-bold text-sm`}
-                      >
+                      <div className="size-10 rounded-full bg-blue-100 text-blue-500 flex items-center justify-center overflow-hidden border-2 border-white group-hover:scale-105 transition-transform font-bold text-sm">
                         {initials}
                       </div>
                       <div>
@@ -296,33 +321,33 @@ export default async function DetalhesPlanoPage({ params }: { params: Promise<{ 
                     <div className="bg-white/40 border border-white/60 p-4 rounded-2xl space-y-3">
                       <div>
                         <p className="text-xs font-bold text-slate-400 uppercase mb-1 flex items-center gap-1">
-                            <span className="material-symbols-outlined text-xs">analytics</span> Estágia
+                          <span className="material-symbols-outlined text-xs">analytics</span> Estágio
                         </p>
                         <p className="text-xs text-slate-700 leading-relaxed">{student.strategy}</p>
                       </div>
-                      
+
                       {student.behavioralTips && (
-                         <div className="border-t border-slate-100 pt-2">
-                            <p className="text-xs font-bold text-slate-400 uppercase mb-1 flex items-center gap-1">
-                                <span className="material-symbols-outlined text-xs">recommend</span> Dicas de Comportamento
-                            </p>
-                            <p className="text-xs text-slate-700 leading-relaxed">{student.behavioralTips}</p>
-                         </div>
+                        <div className="border-t border-slate-100 pt-2">
+                          <p className="text-xs font-bold text-slate-400 uppercase mb-1 flex items-center gap-1">
+                            <span className="material-symbols-outlined text-xs">recommend</span> Dicas de Comportamento
+                          </p>
+                          <p className="text-xs text-slate-700 leading-relaxed">{student.behavioralTips}</p>
+                        </div>
                       )}
 
                       {student.successIndicators && (
-                         <div className="border-t border-slate-100 pt-2">
-                            <p className="text-xs font-bold text-slate-400 uppercase mb-1 flex items-center gap-1">
-                                <span className="material-symbols-outlined text-xs">check_circle</span> Indicadores de Sucesso
-                            </p>
-                            <p className="text-xs text-slate-700 leading-relaxed">{student.successIndicators}</p>
-                         </div>
+                        <div className="border-t border-slate-100 pt-2">
+                          <p className="text-xs font-bold text-slate-400 uppercase mb-1 flex items-center gap-1">
+                            <span className="material-symbols-outlined text-xs">check_circle</span> Indicadores de Sucesso
+                          </p>
+                          <p className="text-xs text-slate-700 leading-relaxed">{student.successIndicators}</p>
+                        </div>
                       )}
 
-                       <div className="border-t border-slate-100 pt-2 flex justify-between items-center text-[10px]">
-                           <span className="font-bold text-slate-400">Suporte:</span>
-                           <span className={`font-bold px-2 py-0.5 rounded-full ${student.supportLevel === 'Alto' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>{student.supportLevel}</span>
-                       </div>
+                      <div className="border-t border-slate-100 pt-2 flex justify-between items-center text-[10px]">
+                        <span className="font-bold text-slate-400">Suporte:</span>
+                        <span className={`font-bold px-2 py-0.5 rounded-full ${student.supportLevel === "Alto" ? "bg-red-100 text-red-600" : "bg-green-100 text-green-600"}`}>{student.supportLevel}</span>
+                      </div>
                     </div>
                   </div>
                 );

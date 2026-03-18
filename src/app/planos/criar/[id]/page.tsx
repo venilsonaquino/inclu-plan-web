@@ -7,26 +7,25 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import subjects from "@/data/subjects.json";
 import { formatRelativeTime } from "@/lib/date-utils";
+import Loading from "@/components/ui/Loading";
 
-// Initial mock data, moved inside component to allow state updates
-const initialStudents = [
-  { id: "1", initials: "LA", name: "Lucas A.", color: "bg-blue-100 text-blue-500", selected: false },
-  { id: "2", initials: "MS", name: "Maria S.", color: "bg-purple-100 text-purple-500", selected: false },
-  { id: "3", initials: "JP", name: "João P.", color: "bg-emerald-100 text-emerald-500", selected: false },
-  { id: "4", initials: "PA", name: "Pedro A.", color: "bg-orange-100 text-orange-500", selected: false },
-  { id: "5", initials: "CC", name: "Clara C.", color: "bg-pink-100 text-pink-500", selected: false },
-];
-
-
+interface Student {
+  id: string;
+  initials: string;
+  name: string;
+  color: string;
+  selected: boolean;
+}
 
 export default function GeradorPlanosPage({ params }: { params: Promise<{ id: string }> }) {
   const unwrappedParams = use(params);
 
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Carregando gerador...</div>}>
+    <Suspense fallback={<Loading text="Carregando gerador..." />}>
       <GeradorPlanosContent turmaId={unwrappedParams.id} />
     </Suspense>
   );
+
 }
 
 function GeradorPlanosContent({ turmaId: propTurmaId }: { turmaId?: string }) {
@@ -35,63 +34,59 @@ function GeradorPlanosContent({ turmaId: propTurmaId }: { turmaId?: string }) {
   const turmaNome = searchParams.get("turmaNome");
 
   const [activeSubject, setActiveSubject] = useState("Português");
-  const [studentsList, setStudentsList] = useState(initialStudents);
-  const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isCreatingNew, setIsCreatingNew] = useState(false);
+  const [studentsList, setStudentsList] = useState<Student[]>([]);
   const router = useRouter();
 
   const [latestPlans, setLatestPlans] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchLatestPlans = async () => {
+    const fetchData = async () => {
+      setIsLoading(true);
       try {
-        const res = await fetch("/api/proxy/lessons?limit=3");
-        if (!res.ok) throw new Error("Erro ao buscar planos");
-        const data = await res.json();
-        setLatestPlans(Array.isArray(data) ? data : []);
+        // 1. Fetch Latest Plans
+        const plansRes = await fetch("/api/proxy/lessons?limit=3");
+        if (plansRes.ok) {
+          const plansData = await plansRes.json();
+          setLatestPlans(Array.isArray(plansData) ? plansData : []);
+        }
+
+        // 2. Fetch Students
+        if (turmaId) {
+          const studentsRes = await fetch(`/api/proxy/school-classes/${turmaId}`);
+          if (studentsRes.ok) {
+            const studentsData = await studentsRes.ok ? await studentsRes.json() : {};
+            if (Array.isArray(studentsData.students)) {
+              const mappedStudents = studentsData.students.map((s: any) => {
+                const initials = s.name
+                  .split(" ")
+                  .map((n: string) => n[0])
+                  .slice(0, 2)
+                  .join("")
+                  .toUpperCase();
+
+                return {
+                  id: s.id,
+                  initials: initials,
+                  name: s.name,
+                  color: "bg-blue-100 text-blue-500",
+                  selected: false
+                };
+              });
+              setStudentsList(mappedStudents);
+            }
+          }
+        }
       } catch (err) {
-        console.error("Failed to fetch latest plans", err);
+        console.error("Failed to fetch initial data", err);
+      } finally {
+        setIsLoading(false);
       }
     };
-    fetchLatestPlans();
-  }, []);
 
-  useEffect(() => {
-    if (turmaId) {
-      fetchStudents(turmaId);
-    }
+    fetchData();
   }, [turmaId]);
 
-  const fetchStudents = async (id: string) => {
-    try {
-      const res = await fetch(`/api/proxy/school-classes/${id}`);
-      if (!res.ok) throw new Error("Erro ao buscar alunos");
-      const data = await res.json();
-
-      if (Array.isArray(data.students)) {
-        const mappedStudents = data.students.map((s: any) => {
-          const initials = s.name
-            .split(" ")
-            .map((n: string) => n[0])
-            .slice(0, 2)
-            .join("")
-            .toUpperCase();
-
-          return {
-            id: s.id,
-            initials: initials,
-            name: s.name,
-            color: "bg-blue-100 text-blue-500",
-            selected: false
-          };
-        });
-        setStudentsList(mappedStudents);
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
 
   // Generator Form State
   const [theme, setTheme] = useState("");
@@ -101,6 +96,12 @@ function GeradorPlanosContent({ turmaId: propTurmaId }: { turmaId?: string }) {
   // New Student Form State
   const [newStudentName, setNewStudentName] = useState("");
   const [newStudentLevel, setNewStudentLevel] = useState("");
+
+  if (isLoading) {
+    return <Loading text="Carregando gerador..." />;
+  }
+
+
 
   const handleToggleStudent = (id: string) => {
     setStudentsList((prev) =>
@@ -129,14 +130,9 @@ function GeradorPlanosContent({ turmaId: propTurmaId }: { turmaId?: string }) {
     };
 
     setStudentsList((prev) => [...prev, newStudent]);
-    setIsCreatingNew(false);
     setNewStudentName("");
     setNewStudentLevel("");
   };
-
-  const filteredStudents = studentsList.filter((s) =>
-    s.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   const selectedStudents = studentsList.filter((s) => s.selected);
 
@@ -149,7 +145,6 @@ function GeradorPlanosContent({ turmaId: propTurmaId }: { turmaId?: string }) {
     setIsGenerating(true);
     try {
       const payload = {
-        teacherId: "00000000-0000-0000-0000-000000000000",
         lessons: [
           {
             discipline: {
@@ -157,7 +152,7 @@ function GeradorPlanosContent({ turmaId: propTurmaId }: { turmaId?: string }) {
               theme: theme,
               observations: observations
             },
-            students: selectedStudents.map(s => s.id) // passing selected student IDs
+            students: selectedStudents.map(s => s.id)
           }
         ],
         imagePart: ""
@@ -172,15 +167,17 @@ function GeradorPlanosContent({ turmaId: propTurmaId }: { turmaId?: string }) {
       if (!res.ok) throw new Error("Erro ao gerar plano");
 
       const generatedPlan = await res.json();
-      console.log("Plan Generated", generatedPlan);
+      const planId = generatedPlan?.lessons?.[0]?.id ?? generatedPlan?.id;
 
-      alert("Plano gerado com sucesso! (Navegando para o detalhe simulado...)");
-      router.push("/planos/cores-e-sentimentos"); // Fake navigation to the pre-built details view for now
+      if (planId) {
+        router.push(`/planos/${planId}`);
+      } else {
+        throw new Error("ID do plano não retornado pela API");
+      }
 
     } catch (err) {
       console.error(err);
-      alert("Houve um erro de conexão com o AI Backend. Simulação prosseguindo.");
-      router.push("/planos/cores-e-sentimentos");
+      alert("Houve um erro ao gerar o plano. Tente novamente.");
     } finally {
       setIsGenerating(false);
     }
