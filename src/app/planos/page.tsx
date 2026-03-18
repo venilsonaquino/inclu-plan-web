@@ -1,71 +1,43 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Select from "@/components/ui/Select";
-
-const lessonPlans = [
-  {
-    title: "Desvendando Palavras",
-    subject: "Portuguese",
-    icon: "translate",
-    iconBg: "bg-primary/10",
-    iconColor: "text-primary",
-    adapted: "3 Alunos Adaptados",
-  },
-  {
-    title: "Números Mágicos",
-    subject: "Mathematics",
-    icon: "calculate",
-    iconBg: "bg-[#52D1DC]/10",
-    iconColor: "text-[#2BA9B5]",
-    adapted: "5 Alunos Adaptados",
-  },
-  {
-    title: "Ecossistemas Vivos",
-    subject: "Science",
-    icon: "eco",
-    iconBg: "bg-[#FFB347]/10",
-    iconColor: "text-[#E68A00]",
-    adapted: "2 Alunos Adaptados",
-  },
-  {
-    title: "Era dos Impérios",
-    subject: "History",
-    icon: "history_edu",
-    iconBg: "bg-[#7D5BA6]/10",
-    iconColor: "text-[#7D5BA6]",
-    adapted: "4 Alunos Adaptados",
-  },
-  {
-    title: "Climas do Mundo",
-    subject: "Geography",
-    icon: "public",
-    iconBg: "bg-[#4CAF50]/10",
-    iconColor: "text-[#4CAF50]",
-    adapted: "1 Aluno Adaptado",
-  },
-  {
-    title: "Cores e Sentimentos",
-    subject: "Art Education",
-    icon: "palette",
-    iconBg: "bg-primary/10",
-    iconColor: "text-primary",
-    adapted: "6 Alunos Adaptados",
-  },
-  {
-    title: "Geometria Básica",
-    subject: "Mathematics",
-    icon: "functions",
-    iconBg: "bg-[#52D1DC]/10",
-    iconColor: "text-[#2BA9B5]",
-    adapted: "3 Alunos Adaptados",
-  },
-];
+import Loading from "@/components/ui/Loading";
+import subjects from "@/data/subjects.json";
 
 export default function BibliotecaPlanosPage() {
   const [selectedMateria, setSelectedMateria] = useState("Todas");
+  const [plans, setPlans] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPlans = async () => {
+      setIsLoading(true);
+      try {
+        const res = await fetch("/api/proxy/lessons");
+        if (res.ok) {
+          const data = await res.json();
+          setPlans(Array.isArray(data) ? data : []);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar planos:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchPlans();
+  }, []);
+
+  if (isLoading) {
+    return <Loading text="Carregando biblioteca..." />;
+  }
+
+  const filteredPlans = plans.filter(plan => 
+    selectedMateria === "Todas" || 
+    plan.discipline?.toLowerCase() === selectedMateria.toLowerCase()
+  );
 
   return (
     <div className="bg-background-light font-display text-accent-purple min-h-screen relative overflow-hidden">
@@ -120,39 +92,51 @@ export default function BibliotecaPlanosPage() {
 
             {/* Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-20">
-              {lessonPlans.map((plan) => (
-                <Link
-                  key={plan.title}
-                  href="/planos/cores-e-sentimentos"
-                  className="glass-card group p-6 rounded-[2rem] shadow-sm hover:shadow-xl transition-all flex flex-col gap-4"
-                >
-                  <div
-                    className={`size-16 rounded-2xl ${plan.iconBg} flex items-center justify-center ${plan.iconColor} mb-2 group-hover:scale-110 transition-transform`}
+              {filteredPlans.map((plan) => {
+                const subjectDetails = subjects.find(
+                  (s) => s.label.toLowerCase() === plan.discipline?.toLowerCase()
+                ) || {
+                  icon: "menu_book",
+                  color: "bg-primary/10",
+                  textColor: "text-primary",
+                };
+
+                const adaptedCount = plan.adaptedStudentsCount ?? 0;
+
+                return (
+                  <Link
+                    key={plan.id}
+                    href={`/planos/${plan.id}`}
+                    className="glass-card group p-6 rounded-[2rem] shadow-sm hover:shadow-xl transition-all flex flex-col gap-4"
                   >
-                    <span className="material-symbols-outlined text-4xl">
-                      {plan.icon}
-                    </span>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-slate-900 leading-tight mb-1">
-                      {plan.title}
-                    </h3>
-                    <p className="text-primary/60 text-sm font-medium">
-                      {plan.subject}
-                    </p>
-                  </div>
-                  <div className="mt-auto pt-4 border-t border-primary/5 flex items-center justify-between">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold">
-                      {plan.adapted}
-                    </span>
-                    <button className="text-slate-400 hover:text-primary transition-colors">
-                      <span className="material-symbols-outlined">
-                        more_vert
+                    <div
+                      className={`size-16 rounded-2xl ${subjectDetails.color} flex items-center justify-center ${subjectDetails.textColor} mb-2 group-hover:scale-110 transition-transform`}
+                    >
+                      <span className="material-symbols-outlined text-4xl">
+                        {subjectDetails.icon}
                       </span>
-                    </button>
-                  </div>
-                </Link>
-              ))}
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-slate-900 leading-tight mb-1 line-clamp-2">
+                        {plan.lessonTitle || plan.title}
+                      </h3>
+                      <p className="text-primary/60 text-sm font-medium">
+                        {plan.discipline}
+                      </p>
+                    </div>
+                    <div className="mt-auto pt-4 border-t border-primary/5 flex items-center justify-between">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold">
+                        {adaptedCount} {adaptedCount === 1 ? "Aluno Adaptado" : "Alunos Adaptados"}
+                      </span>
+                      <button className="text-slate-400 hover:text-primary transition-colors">
+                        <span className="material-symbols-outlined">
+                          more_vert
+                        </span>
+                      </button>
+                    </div>
+                  </Link>
+                );
+              })}
 
               {/* Add New */}
               <Link
