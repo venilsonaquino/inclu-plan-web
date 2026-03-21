@@ -8,6 +8,7 @@ import Footer from "@/components/Footer";
 import subjects from "@/data/subjects.json";
 import { formatRelativeTime } from "@/lib/date-utils";
 import Loading from "@/components/ui/Loading";
+import Toast from "@/components/ui/Toast";
 
 interface Student {
   id: string;
@@ -39,6 +40,7 @@ function GeradorPlanosContent({ turmaId: propTurmaId }: { turmaId?: string }) {
 
   const [latestPlans, setLatestPlans] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -49,6 +51,8 @@ function GeradorPlanosContent({ turmaId: propTurmaId }: { turmaId?: string }) {
         if (plansRes.ok) {
           const plansData = await plansRes.json();
           setLatestPlans(Array.isArray(plansData) ? plansData : []);
+        } else if (plansRes.status === 503) {
+          setApiError("Serviço indisponível no momento.");
         }
 
         // 2. Fetch Students
@@ -75,10 +79,13 @@ function GeradorPlanosContent({ turmaId: propTurmaId }: { turmaId?: string }) {
               });
               setStudentsList(mappedStudents);
             }
+          } else if (studentsRes.status === 503) {
+            setApiError("Não foi possível carregar os alunos da turma.");
           }
         }
       } catch (err) {
         console.error("Failed to fetch initial data", err);
+        setApiError("Falha de conexão com o servidor.");
       } finally {
         setIsLoading(false);
       }
@@ -205,7 +212,7 @@ function GeradorPlanosContent({ turmaId: propTurmaId }: { turmaId?: string }) {
 
     } catch (err) {
       console.error(err);
-      alert((err as Error).message.includes("ID do plano") 
+      setApiError((err as Error).message.includes("ID do plano") 
         ? (err as Error).message 
         : "Houve um erro ao gerar o plano. Tente novamente.");
     } finally {
@@ -217,6 +224,7 @@ function GeradorPlanosContent({ turmaId: propTurmaId }: { turmaId?: string }) {
   return (
     <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden bg-background-light text-slate-900">
       <Navbar />
+      {apiError && <Toast message={apiError} onClose={() => setApiError(null)} />}
 
       <main className="flex-1 px-6 lg:px-20 py-10 max-w-7xl mx-auto w-full space-y-12">
         {/* Create Plan Section */}

@@ -57,11 +57,9 @@ export async function serverApiFetch<T>(
     return NextResponse.json(data, { status: res.status });
   } catch (error) {
     console.error(`[Server API Error] on ${endpoint}:`, error);
-    // Para rotas GET que falham totalmente por timeout/down, 
-    // retornar array vazio pode evitar crash no client (fallback amigável projetado no UI)
-    if (options?.method === 'GET' || !options?.method) {
-      return NextResponse.json([], { status: 200 }); // Graceful degradation return
-    }
+    // Para evitar falsos positivos de sucesso ("200 OK" com dados vazios),
+    // sempre repassamos o erro da infraestrutura (ex: 503 Service Unavailable).
+    // O frontend React deve lidar com esse cenário adequadamente (ex: mostrando mensagem de erro).
     
     return NextResponse.json(
       { error: "Backend indispovível ou fora do ar (Service Unavailable)", status: 503 },

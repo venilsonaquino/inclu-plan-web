@@ -6,6 +6,7 @@ import Navbar from "@/components/Navbar";
 import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
 import Loading from "@/components/ui/Loading";
+import Toast from "@/components/ui/Toast";
 
 interface Turma {
   id: string;
@@ -45,6 +46,7 @@ export default function CriacaoTurmaPage() {
   // New Turma Form State
   const [isCreatingTurma, setIsCreatingTurma] = useState(false);
   const [newTurmaName, setNewTurmaName] = useState("");
+  const [apiError, setApiError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchMasterData();
@@ -57,6 +59,11 @@ export default function CriacaoTurmaPage() {
         fetch("/api/proxy/grades"),
         fetch("/api/proxy/neurodivergencies")
       ]);
+
+      if (!gradesRes.ok || !profilesRes.ok) {
+        setApiError("Não foi possível carregar os dados. O serviço pode estar indisponível.");
+      }
+
       if (gradesRes.ok) {
         const gradesData: Grade[] = await gradesRes.json();
         setGrades(gradesData.map(g => ({ value: g.id, label: g.name })));
@@ -76,6 +83,11 @@ export default function CriacaoTurmaPage() {
     try {
       if (!silent) setIsLoading(true);
       const res = await fetch("/api/proxy/school-classes");
+      
+      if (!res.ok) {
+        throw new Error("Serviço indisponível");
+      }
+      
       const data = await res.json();
 
       const turmasData = Array.isArray(data) ? data : [];
@@ -92,6 +104,7 @@ export default function CriacaoTurmaPage() {
       }
     } catch (error) {
       console.error("Failed to load turmas via proxy route.", error);
+      setApiError("Falha de conexão com o servidor ao carregar turmas.");
       setTurmas([]);
       setOnboardingStep(1);
       setIsCreatingTurma(true);
@@ -242,6 +255,7 @@ export default function CriacaoTurmaPage() {
   return (
     <div className="bg-background-light min-h-screen text-slate-900 font-display">
       <Navbar />
+      {apiError && <Toast message={apiError} onClose={() => setApiError(null)} />}
 
       <main className="max-w-3xl mx-auto px-4 py-8 space-y-6">
         {!isLoading && onboardingStep === 1 && !isCreatingTurma && (

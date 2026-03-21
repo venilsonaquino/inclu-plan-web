@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Toast from "@/components/ui/Toast";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -48,6 +49,7 @@ export default function RegisterPage() {
       const data = await res.json();
 
       if (!res.ok) {
+        if (res.status === 503) throw new Error("Serviço indisponível no momento.");
         throw new Error(data.error || "Erro ao realizar cadastro.");
       }
 
@@ -90,11 +92,7 @@ export default function RegisterPage() {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="w-full space-y-5">
-            {error && (
-              <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm text-center font-medium border border-red-100">
-                {error}
-              </div>
-            )}
+            {error && <Toast message={error} onClose={() => setError(null)} />}
 
             {/* Name */}
             <div className="space-y-1.5 flex flex-col gap-[2px]">

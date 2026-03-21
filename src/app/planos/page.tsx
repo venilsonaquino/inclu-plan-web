@@ -5,12 +5,14 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Select from "@/components/ui/Select";
 import Loading from "@/components/ui/Loading";
+import Toast from "@/components/ui/Toast";
 import subjects from "@/data/subjects.json";
 
 export default function BibliotecaPlanosPage() {
   const [selectedMateria, setSelectedMateria] = useState("Todas");
   const [plans, setPlans] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchPlans = async () => {
@@ -20,9 +22,12 @@ export default function BibliotecaPlanosPage() {
         if (res.ok) {
           const data = await res.json();
           setPlans(Array.isArray(data) ? data : []);
+        } else {
+          setApiError("Serviço indisponível no momento.");
         }
       } catch (error) {
         console.error("Erro ao buscar planos:", error);
+        setApiError("Falha de conexão com o servidor. O sistema pode estar fora do ar.");
       } finally {
         setIsLoading(false);
       }
@@ -53,6 +58,7 @@ export default function BibliotecaPlanosPage() {
 
       <div className="relative z-10">
         <Navbar />
+        {apiError && <Toast message={apiError} onClose={() => setApiError(null)} />}
 
         <div className="px-4 md:px-20 lg:px-40 flex flex-1 justify-center py-8">
           <div className="flex flex-col max-w-[1200px] flex-1">

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Toast from "@/components/ui/Toast";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -40,6 +41,9 @@ export default function LoginPage() {
         }
         if (res.status === 404) {
           throw new Error("E-mail não cadastrado. Verifique o endereço digitado ou crie uma nova conta.");
+        }
+        if (res.status === 503) {
+          throw new Error("Serviço indisponível no momento.");
         }
         throw new Error(data.error || data.message || "Não foi possível realizar o login.");
       }
@@ -85,11 +89,7 @@ export default function LoginPage() {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="w-full space-y-6">
-            {error && (
-              <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm text-center font-medium border border-red-100">
-                {error}
-              </div>
-            )}
+            {error && <Toast message={error} onClose={() => setError(null)} />}
 
             {/* Email */}
             <div className="space-y-2">
